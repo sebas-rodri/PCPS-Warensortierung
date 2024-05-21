@@ -1,5 +1,4 @@
 # Immutable command variables
-START = 1
-RESET = 2
-BUCKET_ONE = 3
-BUCKET_TWO = 4
+RESET = 0
+BUCKET_ONE = 1
+BUCKET_TWO = 2

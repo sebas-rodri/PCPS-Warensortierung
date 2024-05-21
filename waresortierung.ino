@@ -64,11 +64,12 @@ float scale() {
  * sorting the package into the right box (Box 0 with least weight)
  * 
  * @param weight is the weight of the package to be sorted
- * @returns number of box
+ * @returns number of box or -1 on error
  */
 int sort(float weight) { 
-  if (weight < THESHOLD) { return 0; }
-  return 1;
+  if (weight < 0 || weight > THRESHOLD) { return -1; }    // Fehlerbehandlung
+  if (weight < THESHOLD) { return 0; }                    // Box 0
+  return 1;                                               // Box 1
 }
 
 /**

@@ -3,8 +3,7 @@
 *Should be updated with corresponding Python File
 *Author: Sebastian Rodriguez
 */
-#define START		1
-#define RESET		2
-#define BUCKET_ONE	3
-#define BUCKET_TWO	4
+#define RESET		0
+#define BUCKET_ONE	1
+#define BUCKET_TWO	2
 

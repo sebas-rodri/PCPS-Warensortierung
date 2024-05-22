@@ -1,5 +1,6 @@
 import socket 
 from arduino_commands import *
+from robot_functions import Robot
 host = '0.0.0.0'
 port = 12345
 
@@ -18,9 +19,7 @@ def handleCommand(command) -> None:
     None
     """
     command = int(command) # Convert the string to an integer
-    if command == START:
-        print("Start")
-    elif command == RESET:
+    if command == RESET:
         print("Reset")
     elif command == BUCKET_ONE:
         print("Bucket one")

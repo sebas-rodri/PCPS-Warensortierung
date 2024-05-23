@@ -1,12 +1,12 @@
-from wlkata_mirobot import WlkataMirobot, WlkataMirobotTool
 import time
+import wlkata_mirobot
 
 POSITION_SCALE = (200, 20, 230)
 POSITION_BOX_1 = (150, -30, 130)
 POSITION_BOX_2 = (150, 30, 130)
 
 
-class Robot(WlkataMirobot):
+class Robot(wlkata_mirobot.WlkataMirobot):
     def __init__(self, *device_args, **device_kwargs):
         """
         Initializes an instance of the robot and brings it to home position
@@ -43,7 +43,6 @@ class Robot(WlkataMirobot):
         self.pump_off()
         return 1
 
-
     def itemToBoxTwo(self):
         """
         Picks up item from scale and moves item to box two.
@@ -61,12 +60,3 @@ class Robot(WlkataMirobot):
         # switch pump off
         self.pump_off()
         return 1
-
-
-if __name__ == "__main__":
-    arm = Robot()
-    arm.set_tool_type(WlkataMirobotTool.SUCTION_CUP)
-    print("Now moving to pose 1")
-    arm.itemToBoxOne()
-    print("Now moving to box 2")
-    arm.itemToBoxTwo()

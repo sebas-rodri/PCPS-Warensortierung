@@ -1,4 +1,4 @@
-from wlkata_mirobot import WlkataMirobot
+from wlkata_mirobot import WlkataMirobot, WlkataMirobotTool
 import time
 
 POSITION_SCALE = (200, 20, 230)
@@ -61,3 +61,12 @@ class Robot(WlkataMirobot):
         # switch pump off
         self.pump_off()
         return 1
+
+
+if __name__ == "__main__":
+    arm = Robot()
+    arm.set_tool_type(WlkataMirobotTool.SUCTION_CUP)
+    print("Now moving to pose 1")
+    arm.itemToBoxOne()
+    print("Now moving to box 2")
+    arm.itemToBoxTwo()

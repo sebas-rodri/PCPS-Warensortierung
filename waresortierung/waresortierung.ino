@@ -6,7 +6,14 @@ unsigned int NR_BOXES;
 float THRESHOLD;
 int *boxes_array;
 
+
+/*-----WIFI STUFF--------*/
+char ssid[] = SECRET_SSID;        // your network SSID (name)
+char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
+int status = WL_IDLE_STATUS;
 WiFiUDP Udp;
+
+/*-----------------------*/
 
 /**
  * orderly shut down of the entire system
@@ -106,6 +113,7 @@ void loop() {
   }
   
 }
+
 /**
 *Set up for the WIFI uses predefined SSID and Password
 */
@@ -160,13 +168,24 @@ int setUpWiFi(){
 /**
 *Sends a UDP Packet with the give command
 */
-int sendPacket(char command){
+int sendPacket(byte command){
   Serial.println("Send Packet");
-  Udp.beginPacket(IPAddress(IP_ADDRESS), PORT);
+  if (!Udp.beginPacket(IPAddress(IP_ADDRESS), PORT)){
+    Serial.println("Problem Udp.beginPacket");
+  }
+
   Udp.write(command);
-  Udp.endPacket();
+
+  
+  if(!Udp.endPacket()){
+    Serial.println("The packet wasnt send.");
+  }
+  Serial.println(command);
 }
 
+/**
+*Recv UDP Packet from Raspberry Pi (TODO)
+*/
 int recvPacket(){
 
 }

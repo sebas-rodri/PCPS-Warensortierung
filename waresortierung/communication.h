@@ -3,9 +3,9 @@
 *Should be updated with corresponding Python File
 *Author: Sebastian Rodriguez
 */
-#define RESET		"0"
-#define BUCKET_ONE	"1"
-#define BUCKET_TWO	"2"
+#define RESET		0
+#define BUCKET_ONE	1
+#define BUCKET_TWO	2
 #define SECRET_SSID "Totogolazo"
 #define SECRET_PASS ""
 #define PORT        2360

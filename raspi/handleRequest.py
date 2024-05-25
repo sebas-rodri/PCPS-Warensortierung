@@ -1,7 +1,7 @@
 import socket 
 from arduino_commands import *
 host = '0.0.0.0'
-port = 12345
+port = 2360
 
 
 def handleCommand(command) -> None:
@@ -18,9 +18,7 @@ def handleCommand(command) -> None:
     None
     """
     command = int(command) # Convert the string to an integer
-    if command == START:
-        print("Start")
-    elif command == RESET:
+    if command == RESET:
         print("Reset")
     elif command == BUCKET_ONE:
         print("Bucket one")
@@ -30,27 +28,38 @@ def handleCommand(command) -> None:
         print("Invalid command")
 
 
+def get_local_ip():
+    try:
+        # Create a socket object
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # Connect to a remote server (doesn't matter which one)
+        s.connect(("8.8.8.8", 80))
+        # Get the local IP address of the connected socket
+        local_ip = s.getsockname()[0]
+        # Close the socket
+        s.close()
+        return local_ip
+    except Exception as e:
+        print("Error:", e)
+        return None
+
 def startServer() -> None:
     """
     Starts the server and listens for incoming connections.
     """
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_socket.bind((host, port)) # Bind to the port
-    server_socket.listen(5)
     print(f"Server listening on {host}:{port}")
 
     while True:
-        client_socket, client_address = server_socket.accept()
-        print(f"Connection from {client_address}")
-
         try:
-            command = client_socket.recv(1) # Receive 1 byte, bcs we know the command is 1 byte
+            command, client_address = server_socket.recvfrom(1) # Receive 1 byte, bcs we know the command is 1 byte
             if command:
-                handleCommand(command.decode("utf-8")) # Decode the byte string
-            client_socket.close()
+                print(client_address)
+                handleCommand(command[0]) # Decode the byte string
         except Exception as e:
             print(f"Error: {e}")
-            client_socket.close()
 
 if __name__ == "__main__":
+    print(get_local_ip())
     startServer()

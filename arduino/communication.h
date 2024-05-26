@@ -18,6 +18,8 @@
 
 
 int setUpWiFi();
+
 int sendPacket(byte command);
+
 int recvPacket();
 

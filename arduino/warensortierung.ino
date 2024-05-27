@@ -31,7 +31,7 @@ void initializingArray() {
     // declaration
     boxes_array = (unsigned int*)malloc(NR_BOXES * sizeof(int));
     if (boxes_array == NULL) {
-        // error handeling
+        // error handling
         exitFunction();
     }
 

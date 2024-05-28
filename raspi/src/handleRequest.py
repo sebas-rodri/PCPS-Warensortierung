@@ -1,68 +1,72 @@
 import socket
 from arduino_commands import *
-
-host = '0.0.0.0'
-port = 2360
+from robot_functions import Robot
 
 
-def handleCommand(command) -> None:
-    """
-    Handles the given command.
+class Server:
+    def __init__(self, host, port) -> None:
+        """
+        Starts the server and initializes connection with robot.
+        """
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server_socket.bind((host, port))  # Bind to the port
+        print(f"Server listening on {host}:{port}")
 
-    Parameters:
-    command (int): The command to be handled.
+        self.robot = Robot()
 
-    Returns:
-    None
+    def run(self) -> None:
+        """
+        Listens for incoming connections, then forwards them to the handler.
+        :return: 1
+        """
+        while True:
+            try:
+                # Receive 1 byte, bcs we know the command is 1 byte
+                command, client_address = self.server_socket.recvfrom(1)
+                if command:
+                    print(client_address)
+                    # Decode the byte string
+                    self.handleCommand(command[0])
+            except Exception as e:
+                print(f"Error: {e}")
 
-    Raises:
-    None
-    """
-    command = int(command)  # Convert the string to an integer
-    if command == RESET:
-        print("Reset")
-    elif command == BUCKET_ONE:
-        print("Bucket one")
-    elif command == BUCKET_TWO:
-        print("Bucket two")
-    else:
-        print("Invalid command")
+    def handleCommand(self, command: int) -> None:
+        """
+        Handles the given command.
 
+        :param command: The command to be handled.
+        :return: None
+        """
+        if command == RESET:
+            self.robot.reset()
+        elif command == BUCKET_ONE:
+            self.robot.itemToBoxOne()
+        elif command == BUCKET_TWO:
+            self.robot.itemToBoxTwo()
+        else:
+            print("Invalid command")
 
-def getLocalIP():
-    try:
-        # Create a socket object
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # Connect to a remote server (doesn't matter which one)
-        s.connect(("8.8.8.8", 80))
-        # Get the local IP address of the connected socket
-        local_ip = s.getsockname()[0]
-        # Close the socket
-        s.close()
-        return local_ip
-    except Exception as e:
-        print("Error:", e)
-        return None
-
-
-def startServer() -> None:
-    """
-    Starts the server and listens for incoming connections.
-    """
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_socket.bind((host, port))  # Bind to the port
-    print(f"Server listening on {host}:{port}")
-
-    while True:
+    @staticmethod
+    def getLocalIP():
+        """
+        Returns the IP address of the local machine.
+        :return: IP address
+        """
         try:
-            command, client_address = server_socket.recvfrom(1)  # Receive 1 byte, bcs we know the command is 1 byte
-            if command:
-                print(client_address)
-                handleCommand(command[0])  # Decode the byte string
+            # Create a socket object
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            # Connect to a remote server (doesn't matter which one)
+            s.connect(("8.8.8.8", 80))
+            # Get the local IP address of the connected socket
+            local_ip = s.getsockname()[0]
+            # Close the socket
+            s.close()
+            return local_ip
         except Exception as e:
-            print(f"Error: {e}")
+            print("Error:", e)
+            return None
 
 
 if __name__ == "__main__":
-    print(getLocalIP())
-    startServer()
+    server = Server('0.0.0.0', 2360)
+

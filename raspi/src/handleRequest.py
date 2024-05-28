@@ -4,7 +4,7 @@ from robot_functions import Robot
 
 
 class Server:
-    def __init__(self, host, port):
+    def __init__(self, host, port) -> None:
         """
         Starts the server and initializes connection with robot.
         """
@@ -14,7 +14,7 @@ class Server:
 
         self.robot = Robot()
 
-    def run(self):
+    def run(self) -> None:
         """
         Listens for incoming connections, then forwards them to the handler.
         :return: 1
@@ -30,14 +30,13 @@ class Server:
             except Exception as e:
                 print(f"Error: {e}")
 
-    def handleCommand(self, command) -> None:
+    def handleCommand(self, command: int) -> None:
         """
         Handles the given command.
 
         :param command: The command to be handled.
         :return: None
         """
-        command = int(command)  # Convert the string to an integer
         if command == RESET:
             self.robot.reset()
         elif command == BUCKET_ONE:

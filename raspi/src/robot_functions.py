@@ -7,7 +7,7 @@ POSITION_BOX_2 = (150, 30, 130)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):
-    def __init__(self, *device_args, **device_kwargs):
+    def __init__(self, *device_args, **device_kwargs) -> None:
         """
         Initializes an instance of the robot and brings it to home position
 
@@ -17,18 +17,17 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         super().__init__(*device_args, **device_kwargs)
         self.home()
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Resets the robot to its home position.
-        :return: 1 if successful
+        :return: None
         """
         self.home()
-        return 1
 
-    def itemToBoxOne(self):
+    def itemToBoxOne(self) -> None:
         """
         Picks up item from scale and moves item to box one.
-        :return: 1 if successful
+        :return: None
         """
         # Move to scale
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
@@ -41,12 +40,11 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         time.sleep(1)
         # switch pump off
         self.pump_off()
-        return 1
 
-    def itemToBoxTwo(self):
+    def itemToBoxTwo(self) -> None:
         """
         Picks up item from scale and moves item to box two.
-        :return: 1 if successful
+        :return: None
         """
         # Move to scale
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
@@ -59,4 +57,3 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         time.sleep(1)
         # switch pump off
         self.pump_off()
-        return 1

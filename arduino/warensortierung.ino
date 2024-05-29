@@ -2,22 +2,29 @@
 #include "communication.h"
 #include <SoftwareSerial.h>
 #include "Ultrasonic.h"
-
+#include <HX711_ADC.h>
+#if defined(ESP8266)|| defined(ESP32) || defined(AVR)
+#include <EEPROM.h>
+#endif
 /* Definition for sensor connections slots */
 #define Lichtschranke A0
 #define LED 10
 #define Laser 2
 // Sets the differenz in Voltag for the lightbarrier to trigger
 #define sensitivity_lightbarrier -100
-
-
-
+// Waage
+const int HX711_dout = 4; //mcu > HX711 dout pin
+const int HX711_sck = 5; //mcu > HX711 sck pin
+HX711_ADC LoadCell(HX711_dout, HX711_sck);
+const int calVal_eepromAdress = 0;
+unsigned long t = 0;
 
 
 const float MAX_WEIGHT = 500;
 
 unsigned int NR_BOXES;
 float THRESHOLD;
+float MAXWEIGHT;
 int *boxes_array;
 //Variable for the stadart value of the lightresistir
 int standart_lichtwiederstand = 0;
@@ -67,6 +74,27 @@ void setup() {
   Serial.println(standart_lichtwiederstand);
 
   digitalWrite(Laser, HIGH);
+  //Waage
+  LoadCell.begin();
+  //LoadCell.setReverseOutput(); //uncomment to turn a negative output value to positive
+  float calibrationValue; // calibration value (see example file "Calibration.ino")
+  calibrationValue = 887.24; // uncomment this if you want to set the calibration value in the sketch
+#if defined(ESP8266)|| defined(ESP32)
+  //EEPROM.begin(512); // uncomment this if you use ESP8266/ESP32 and want to fetch the calibration value from eeprom
+#endif
+  EEPROM.get(calVal_eepromAdress, calibrationValue); // uncomment this if you want to fetch the calibration value from eeprom
+  unsigned long stabilizingtime = 2000; // preciscion right after power-up can be improved by adding a few seconds of stabilizing time
+  boolean _tare = true; //set this to false if you don't want tare to be performed in the next step
+  LoadCell.start(stabilizingtime, _tare);
+  if (LoadCell.getTareTimeoutFlag()) {
+    Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
+    while (1);
+  }
+  else {
+    LoadCell.setCalFactor(calibrationValue); // set calibration value (float)
+    Serial.println("Startup is complete");
+  }
+}
 
   //visul output for Startup
   digitalWrite(LED, HIGH);
@@ -102,6 +130,10 @@ void sendMessage(String message) {
  */
 // to implement
 float scale() {
+  while(!LoadCell.update()){} //wait for scale output
+  float i = LoadCell.getData();
+  Serial.println(i); //test scale weight
+  return i;
 }
 
 /**
@@ -111,7 +143,7 @@ float scale() {
  * @returns number of box or -1 on error
  */
 int sort(float weight) {
-  if (weight < 0 || weight > THRESHOLD) { return -1; }  // Fehlerbehandlung
+  if (weight < 0) { return -1; }  // Fehlerbehandlung
   if (weight < THRESHOLD) { return 0; }                 // Box 0
   return 1;                                             // Box 1
 }
@@ -132,12 +164,12 @@ int photoelectricSensor() {
 // main code to run repeatedly:
 void loop() {
   float weight = scale();
-  int witch_box = sort(weight);
+  int which_box = sort(weight);
 
-  String messageWB = String(witch_box);  // convert int to String: message to be send to raspberry
+  String messageWB = String(which_box);  // convert int to String: message to be send to raspberry
   sendMessage(messageWB);
 
-  boxes_array[witch_box]++;  // increase the counter for the amount of packages in the box
+  boxes_array[which_box]++;  // increase the counter for the amount of packages in the box
 
   // warten auf message das roboter ferig ist
 

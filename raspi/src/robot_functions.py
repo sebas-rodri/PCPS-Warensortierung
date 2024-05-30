@@ -57,3 +57,11 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         time.sleep(1)
         # switch pump off
         self.pump_off()
+
+    def getRobotStatus(self):
+        """
+        Gets the status of the robot.
+
+        :return: The status of the robot.
+        """
+        return self.get_status()

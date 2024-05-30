@@ -20,6 +20,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
     def reset(self) -> None:
         """
         Resets the robot to its zero position.
+
         :return: None
         """
         self.go_to_zero()
@@ -27,6 +28,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
     def itemToBoxOne(self) -> None:
         """
         Picks up item from scale and moves item to box one.
+
         :return: None
         """
         # Move to scale
@@ -44,6 +46,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
     def itemToBoxTwo(self) -> None:
         """
         Picks up item from scale and moves item to box two.
+
         :return: None
         """
         # Move to scale

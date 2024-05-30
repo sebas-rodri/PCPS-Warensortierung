@@ -19,10 +19,10 @@ class Robot(wlkata_mirobot.WlkataMirobot):
 
     def reset(self) -> None:
         """
-        Resets the robot to its home position.
+        Resets the robot to its zero position.
         :return: None
         """
-        self.home()
+        self.go_to_zero()
 
     def itemToBoxOne(self) -> None:
         """

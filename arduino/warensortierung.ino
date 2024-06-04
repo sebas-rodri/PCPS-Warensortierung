@@ -94,8 +94,6 @@ void setup() {
     LoadCell.setCalFactor(calibrationValue); // set calibration value (float)
     Serial.println("Startup is complete");
   }
-}
-
   //visual output for Startup
   digitalWrite(LED, HIGH);
   delay(5000);

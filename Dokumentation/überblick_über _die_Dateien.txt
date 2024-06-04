@@ -1,0 +1,23 @@
+Wo was implementiert wurde.
+
+arduino/warensortierung.ino:
+	- Steuerung der Sensoren
+	- versendung der anweisungen für den Roboter an den Resberry-pi
+	- logic für das sortieren der packete
+
+arduino/communication.h
+	-definition verschiedener werte für die communication über W-Lan
+
+
+raspi/src/ardruino_commands.py:
+	- Definition der befehle(von der W-lan connection
+
+raspi/src/handleRequest.py
+	- Setupserver
+	- handling von Request
+
+raspi/src/robot_functions.py
+	- implementierung der einzelnen Funktionen für den Roboter
+
+
+Führ nähere Informationen siehe Commentare in den dateien.

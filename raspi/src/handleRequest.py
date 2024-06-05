@@ -4,6 +4,12 @@ from robot_functions import Robot
 
 
 class Server:
+    """
+    Starts the server and initializes connection with robot.
+
+    :param host: The host address to bind the server to.
+    :param port: The port to bind the server to.
+    """
     def __init__(self, host, port) -> None:
         """
         Starts the server and initializes connection with robot.

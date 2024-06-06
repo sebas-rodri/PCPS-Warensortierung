@@ -19,14 +19,16 @@ class Robot(wlkata_mirobot.WlkataMirobot):
 
     def reset(self) -> None:
         """
-        Resets the robot to its home position.
+        Resets the robot to its zero position.
+
         :return: None
         """
-        self.home()
+        self.go_to_zero()
 
     def itemToBoxOne(self) -> None:
         """
         Picks up item from scale and moves item to box one.
+
         :return: None
         """
         # Move to scale
@@ -44,6 +46,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
     def itemToBoxTwo(self) -> None:
         """
         Picks up item from scale and moves item to box two.
+
         :return: None
         """
         # Move to scale
@@ -57,3 +60,11 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         time.sleep(1)
         # switch pump off
         self.pump_off()
+
+    def getRobotStatus(self):
+        """
+        Gets the status of the robot.
+
+        :return: The status of the robot.
+        """
+        return self.get_status()

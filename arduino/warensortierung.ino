@@ -3,7 +3,7 @@
 #include <SoftwareSerial.h>
 #include "Ultrasonic.h"
 #include <HX711_ADC.h>
-#if defined(ESP8266)|| defined(ESP32) || defined(AVR)
+#if defined(ESP8266) || defined(ESP32) || defined(AVR)
 #include <EEPROM.h>
 #endif
 /* Definition for sensor connections slots */
@@ -13,8 +13,8 @@
 // Sets the differenz in Voltag for the lightbarrier to trigger
 #define sensitivity_lightbarrier -100
 // define pins for scale and initializes LoadCell
-const int HX711_dout = 4; //mcu > HX711 dout pin
-const int HX711_sck = 5; //mcu > HX711 sck pin
+const int HX711_dout = 4;  //mcu > HX711 dout pin
+const int HX711_sck = 5;   //mcu > HX711 sck pin
 HX711_ADC LoadCell(HX711_dout, HX711_sck);
 const int calVal_eepromAdress = 0;
 unsigned long t = 0;
@@ -72,32 +72,9 @@ void setup() {
   pinMode(Lichtschranke, INPUT);
   standart_lichtwiederstand = analogRead(Lichtschranke);
   Serial.println(standart_lichtwiederstand);
-
   digitalWrite(Laser, HIGH);
   // start up scale
-  LoadCell.begin();
-  //LoadCell.setReverseOutput(); //uncomment to turn a negative output value to positive
-  float calibrationValue; // calibration value (see example file "Calibration.ino")
-  //calibrationValue = 887.24; // uncomment to set the calibration value in the sketch
-#if defined(ESP8266)|| defined(ESP32)
-  EEPROM.begin(512); // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
-#endif
-  EEPROM.get(calVal_eepromAdress, calibrationValue); // fetch the calibration value from eeprom
-  unsigned long stabilizingtime = 2000; // preciscion right after power-up can be improved by adding a few seconds of stabilizing time
-  boolean _tare = true; //set to false to skip tare in the next step
-  LoadCell.start(stabilizingtime, _tare);
-  if (LoadCell.getTareTimeoutFlag()) {
-    Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
-    while (1);
-  }
-  else {
-    LoadCell.setCalFactor(calibrationValue); // set calibration value (float)
-    Serial.println("Startup is complete");
-  }
-  //visual output for Startup
-  digitalWrite(LED, HIGH);
-  delay(5000);
-  digitalWrite(LED, LOW);
+  startup_Scale();
 
   //NR_BOXES initialisieren
   //THRESHOLD initialisieren
@@ -105,11 +82,36 @@ void setup() {
   initializingArray();
 }
 
-int test_light_barrier(){
-  for (int i = 0; i <= 69; i++) {
-    Serial.println(photoelectricSensor());
-    delay(5000);
+
+/**
+ * setup the scale for mesurments
+ * 
+ * @param none is the message to send
+ */
+void startup_Scale() {
+  LoadCell.begin();
+  //LoadCell.setReverseOutput(); //uncomment to turn a negative output value to positive
+  float calibrationValue;  // calibration value (see example file "Calibration.ino")
+  //calibrationValue = 887.24; // uncomment to set the calibration value in the sketch
+#if defined(ESP8266) || defined(ESP32)
+  EEPROM.begin(512);  // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
+#endif
+  EEPROM.get(calVal_eepromAdress, calibrationValue);  // fetch the calibration value from eeprom
+  unsigned long stabilizingtime = 2000;               // preciscion right after power-up can be improved by adding a few seconds of stabilizing time
+  boolean _tare = true;                               //set to false to skip tare in the next step
+  LoadCell.start(stabilizingtime, _tare);
+  if (LoadCell.getTareTimeoutFlag()) {
+    Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
+    while (1)
+      ;
+  } else {
+    LoadCell.setCalFactor(calibrationValue);  // set calibration value (float)
+    Serial.println("Startup is complete");
   }
+  //visual output for Startup
+  digitalWrite(LED, HIGH);
+  delay(5000);
+  digitalWrite(LED, LOW);
 }
 
 /**
@@ -128,7 +130,7 @@ void sendMessage(String message) {
  */
 // to implement
 float scale() {
-  while(!LoadCell.update()){} //wait for scale output
+  while (!LoadCell.update()) {}  //wait for scale output
   float weight = LoadCell.getData();
   //Serial.println(weight); //test scale weight
   return weight;
@@ -141,9 +143,9 @@ float scale() {
  * @returns number of box or -1 on error
  */
 int sort(float weight) {
-  if (weight < 0) { return -1; }  // Fehlerbehandlung
-  if (weight < THRESHOLD) { return 0; }                 // Box 0
-  return 1;                                             // Box 1
+  if (weight < 0) { return -1; }         // Fehlerbehandlung
+  if (weight < THRESHOLD) { return 0; }  // Box 0
+  return 1;                              // Box 1
 }
 
 /**

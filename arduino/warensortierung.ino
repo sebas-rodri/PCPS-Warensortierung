@@ -253,9 +253,3 @@ int sendPacket(byte command) {
     }
     Serial.println(command);
 }
-
-/**
-* Receive UDP Packet from Raspberry Pi (TODO)
-*/
-int recvPacket() {
-}

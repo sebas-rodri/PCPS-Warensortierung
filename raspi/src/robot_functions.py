@@ -1,9 +1,9 @@
 import time
 import wlkata_mirobot
 
-POSITION_SCALE = (50, -240, 60)
-POSITION_BOX_1 = (50, 240, 60)
-POSITION_BOX_2 = (-150, 240, 60)
+POSITION_SCALE = (80, -230, 60)
+POSITION_BOX_1 = (50, 240, 100)
+POSITION_BOX_2 = (-150, 240, 100)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):

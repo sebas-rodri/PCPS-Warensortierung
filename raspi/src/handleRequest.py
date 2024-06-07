@@ -1,6 +1,7 @@
 import socket
 from arduino_commands import *
 from robot_functions import Robot
+import logging
 
 
 class Server:
@@ -16,7 +17,7 @@ class Server:
         """
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_socket.bind((host, port))  # Bind to the port
-        print(f"Server listening on {host}:{port}")
+        logging.info(f"Server listening on {host}:{port}")
 
         self.robot = Robot()
 
@@ -30,11 +31,11 @@ class Server:
                 # Receive 1 byte, bcs we know the command is 1 byte
                 command, client_address = self.server_socket.recvfrom(1)
                 if command:
-                    print(client_address)
+                    logging.debug(f"Client address: {client_address}")
                     # Decode the byte string
                     self.handleCommand(command[0])
             except Exception as e:
-                print(f"Error: {e}")
+                logging.exception(e)
 
     def handleCommand(self, command: int) -> None:
         """
@@ -44,13 +45,16 @@ class Server:
         :return: None
         """
         if command == RESET:
+            logging.info(f"Reset command received")
             self.robot.reset()
         elif command == BUCKET_ONE:
+            logging.info(f"Bucket one command received")
             self.robot.itemToBoxOne()
         elif command == BUCKET_TWO:
+            logging.info(f"Bucket two command received")
             self.robot.itemToBoxTwo()
         else:
-            print("Invalid command")
+            logging.error("Invalid command")
 
     @staticmethod
     def getLocalIP():
@@ -69,10 +73,12 @@ class Server:
             s.close()
             return local_ip
         except Exception as e:
-            print("Error:", e)
+            logging.exception(e)
             return None
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     server = Server('0.0.0.0', 2360)
+    server.run()
 

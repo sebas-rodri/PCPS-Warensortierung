@@ -1,12 +1,18 @@
 import time
 import wlkata_mirobot
 
-POSITION_SCALE = (200, 20, 230)
-POSITION_BOX_1 = (150, -30, 130)
-POSITION_BOX_2 = (150, 30, 130)
+POSITION_SCALE = (50, -240, 60)
+POSITION_BOX_1 = (50, 240, 60)
+POSITION_BOX_2 = (-150, 240, 60)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):
+    """
+    Initializes an instance of the robot and brings it to home position
+
+    :param device_args: Arguments passed to the parent class constructor
+    :param device_kwargs: Keyword arguments passed to the parent class constructor
+    """
     def __init__(self, *device_args, **device_kwargs) -> None:
         """
         Initializes an instance of the robot and brings it to home position
@@ -34,14 +40,18 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         # Move to scale
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
         # Pickup item
-        self.pump_suction()
+        self.pump_on()
+        # Move up
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)
+        # Move to box 1 up
+        self.set_tool_pose(POSITION_BOX_1[0], POSITION_BOX_1[1], POSITION_BOX_1[2] + 100)
         # Move to box 1
         self.set_tool_pose(POSITION_BOX_1[0], POSITION_BOX_1[1], POSITION_BOX_1[2])
         # Release item
-        self.pump_blowing()
-        time.sleep(1)
-        # switch pump off
         self.pump_off()
+        time.sleep(1)
+        # return to neutral position
+        self.go_to_zero()
 
     def itemToBoxTwo(self) -> None:
         """
@@ -53,13 +63,18 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
         # Pickup item
         self.pump_suction()
-        # Move to box 2
+        time.sleep(2)
+        # Move up
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)
+        # Move to box 2 up
+        self.set_tool_pose(POSITION_BOX_2[0], POSITION_BOX_2[1], POSITION_BOX_2[2] + 100)
+        # Move down
         self.set_tool_pose(POSITION_BOX_2[0], POSITION_BOX_2[1], POSITION_BOX_2[2])
         # Release item
         self.pump_blowing()
         time.sleep(1)
-        # switch pump off
-        self.pump_off()
+        # return to neutral position
+        self.go_to_zero()
 
     def getRobotStatus(self):
         """

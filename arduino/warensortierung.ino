@@ -3,26 +3,32 @@
 #include <SoftwareSerial.h>
 #include "Ultrasonic.h"
 
-/* Definition for sensor connections slots */
-#define Lichtschranke A0
+/* definition for sensor connection slots */
+#define LIGHT_BARRIER A0
 #define LED 10
-#define Laser 2
-// Sets the differenz in Voltag for the lightbarrier to trigger
-#define sensitivity_lightbarrier -100
+#define LASER 2
+#define BUTTON 3
+// Sets the difference in voltage for the light barrier to trigger
+#define SENSITIVITY_LIGHT_BARRIER -100
 
 
 
+// initialize global variables
 
-
+//maximal weight for the packages
 const float MAX_WEIGHT = 500;
-
-unsigned int NR_BOXES;
+// weight threshold for package sorting
 float THRESHOLD;
+// number of boxes
+unsigned int NR_BOXES = 1;
+// array for storing the amount of packages
 int *boxes_array;
-//Variable for the stadart value of the lightresistir
-int standart_lichtwiederstand = 0;
+//Variable for the standard value of the light barrier
+int standard_lb = 0;
+//variable for the box status
+int full_box = -1;
 
-/*-----WIFI STUFF--------*/
+/*-----Initializing Variable for WIFI--------*/
 char ssid[] = SECRET_SSID;  // your network SSID (name)
 char pass[] = SECRET_PASS;  // your network password (use for WPA, or use as key for WEP)
 int status = WL_IDLE_STATUS;
@@ -43,8 +49,8 @@ void exitFunction() {
 void initializingArray() {
   // declaration
   boxes_array = (int *)malloc(NR_BOXES * sizeof(int));
+  // error handling
   if (boxes_array == NULL) {
-    // error handling
     exitFunction();
   }
 
@@ -55,45 +61,29 @@ void initializingArray() {
 
 // setup code to run once:
 void setup() {
-  // Setup for testing with Serialport(9600)
+  // Setup for testing with serial port(9600)
   Serial.begin(9600);
-  Serial.print("Testbegin\n");
+  Serial.print("test begin\n");
 
-  /* Initialsierung der Sensoren*/
+  /* initialize the sensors*/
+  pinMode(BUTTON, INPUT);
   pinMode(LED, OUTPUT);
-  pinMode(Laser, OUTPUT);
-  pinMode(Lichtschranke, INPUT);
-  standart_lichtwiederstand = analogRead(Lichtschranke);
-  Serial.println(standart_lichtwiederstand);
+  pinMode(LASER, OUTPUT);
+  pinMode(LIGHT_BARRIER, INPUT);
+  standard_lb = analogRead(LIGHT_BARRIER);
+  digitalWrite(LASER, HIGH);
 
-  digitalWrite(Laser, HIGH);
+  // initialize NR_BOXES
+  // initialize THRESHOLD
+  initializingArray();
 
-  //visul output for Startup
+  // visual output for startup
   digitalWrite(LED, HIGH);
   delay(5000);
   digitalWrite(LED, LOW);
-
-  //NR_BOXES initialisieren
-  //THRESHOLD initialisieren
-
-  initializingArray();
 }
 
-int test_light_barrier(){
-  for (int i = 0; i <= 69; i++) {
-    Serial.println(photoelectricSensor());
-    delay(5000);
-  }
-}
 
-/**
- * send a message to Raspberry
- * 
- * @param message is the message to send
- */
-// to implement
-void sendMessage(String message) {
-}
 
 /**
  * read out the scale and handle errors
@@ -111,18 +101,18 @@ float scale() {
  * @returns number of box or -1 on error
  */
 int sort(float weight) {
-  if (weight < 0 || weight > THRESHOLD) { return -1; }  // Fehlerbehandlung
-  if (weight < THRESHOLD) { return 0; }                 // Box 0
-  return 1;                                             // Box 1
+  if (weight < 0 || weight > THRESHOLD) { exitFunction(); }  // error handling
+  if (weight < THRESHOLD) { return 0; }                      // Box 0
+  return 1;                                                  // Box 1
 }
 
 /**
  * read out the photoelectric sensor
  * 
- * @return number of full box or -1 if not triggered
+ * @return -1 if triggered and 1 if not triggered
  */
-int photoelectricSensor() {
-  if ((standart_lichtwiederstand - analogRead(Lichtschranke)) < sensitivity_lightbarrier) {
+int light_barrier() {
+  if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {
     return -1;
   } else {
     return 0;
@@ -131,27 +121,32 @@ int photoelectricSensor() {
 
 // main code to run repeatedly:
 void loop() {
-  float weight = scale();
-  int witch_box = sort(weight);
 
-  String messageWB = String(witch_box);  // convert int to String: message to be send to raspberry
-  sendMessage(messageWB);
-
-  boxes_array[witch_box]++;  // increase the counter for the amount of packages in the box
-
-  // warten auf message das roboter ferig ist
-
-  int full_box = photoelectricSensor();
-  // if a box is full send the relevant info to raspberry and terminate program
-  if (full_box >= 0) {
-    String messageFB = String(full_box);
-    sendMessage(messageFB);
+  // checks the light barrier and exits the function if triggered
+  if (light_barrier() < 0) {
     exitFunction();
   }
+  // sorting package and sending instructions to robot
+  sendPacket(byte(sorting()));
 }
 
+
+
 /**
-*Set up for the WIFI uses predefined SSID and Password
+* function sorting the package and updating package count
+* return 1 = box_1 return 2 = box_2
+*/
+int sorting() {
+  float weight = scale();
+  int witch_box = sort(weight);
+  boxes_array[witch_box]++;  // increase the counter for the amount of packages in the box
+  return witch_box;
+}
+
+
+
+/**
+* Set up for the WIFI uses predefined SSID and Password
 */
 int setUpWiFi() {
   Serial.begin(9600);
@@ -203,8 +198,9 @@ int setUpWiFi() {
 }
 
 /**
-*Sends a UDP Packet with the give command
+* @param command is the parameter to sends a UDP Packet with the give command
 */
+
 int sendPacket(byte command) {
   Serial.println("Send Packet");
   if (!Udp.beginPacket(IPAddress(IP_ADDRESS), PORT)) {

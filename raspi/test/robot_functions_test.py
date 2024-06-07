@@ -4,6 +4,16 @@ from raspi.src.robot_functions import Robot
 
 
 class RobotFunctionTest(unittest.TestCase):
+    """
+        RobotFunctionTest
+
+        Unit tests for the Robot class.
+
+        Methods:
+            - testReset(): Tests the reset method of the Robot class.
+            - testMoveToBox1(): Tests the itemToBoxOne method of the Robot class.
+            - testMoveToBox2(): Tests the itemToBoxTwo method of the Robot class.
+    """
     def testReset(self):
         arm = Robot()
         arm.reset()

@@ -3,29 +3,29 @@
 #include <SoftwareSerial.h>
 #include "Ultrasonic.h"
 
-/* Definition for sensor connections slots */
-#define Lichtschranke A0
+/* definition for sensor connection slots */
+#define LIGHT_BARRIER A0
 #define LED 10
-#define Laser 2
-#define Button 3
-// Sets the differenz in Voltag for the lightbarrier to trigger
-#define sensitivity_lightbarrier -100
+#define LASER 2
+#define BUTTON 3
+// Sets the difference in voltage for the light barrier to trigger
+#define SENSITIVITY_LIGHT_BARRIER -100
 
 
 
-//Initilasirung globale Variablen
+// initialize global variables
 
-//maximal waight for the packeges
+//maximal weight for the packages
 const float MAX_WEIGHT = 500;
-// waight threshold for package sorting
+// weight threshold for package sorting
 float THRESHOLD;
 // number of boxes
 unsigned int NR_BOXES = 1;
-// array for storring the amount of packages
+// array for storing the amount of packages
 int *boxes_array;
-//Variable for the standart value of the lightbarrier
-int standart_lb = 0;
-//variale for the box status
+//Variable for the standard value of the light barrier
+int standard_lb = 0;
+//variable for the box status
 int full_box = -1;
 
 /*-----Initializing Variable for WIFI--------*/
@@ -61,23 +61,23 @@ void initializingArray() {
 
 // setup code to run once:
 void setup() {
-  // Setup for testing with Serialport(9600)
+  // Setup for testing with serial port(9600)
   Serial.begin(9600);
-  Serial.print("Testbegin\n");
+  Serial.print("test begin\n");
 
-  /* Initialsierung der Sensoren*/
-  pinMode(Button, INPUT);
+  /* initialize the sensors*/
+  pinMode(BUTTON, INPUT);
   pinMode(LED, OUTPUT);
-  pinMode(Laser, OUTPUT);
-  pinMode(Lichtschranke, INPUT);
-  standart_lb = analogRead(Lichtschranke);
-  digitalWrite(Laser, HIGH);
+  pinMode(LASER, OUTPUT);
+  pinMode(LIGHT_BARRIER, INPUT);
+  standard_lb = analogRead(LIGHT_BARRIER);
+  digitalWrite(LASER, HIGH);
 
-  //NR_BOXES initialisieren
-  //THRESHOLD initialisieren
+  // initialize NR_BOXES
+  // initialize THRESHOLD
   initializingArray();
 
-  //visul output for Startup
+  // visual output for startup
   digitalWrite(LED, HIGH);
   delay(5000);
   digitalWrite(LED, LOW);
@@ -101,7 +101,7 @@ float scale() {
  * @returns number of box or -1 on error
  */
 int sort(float weight) {
-  if (weight < 0 || weight > THRESHOLD) { exitFunction(); }  // Fehlerbehandlung
+  if (weight < 0 || weight > THRESHOLD) { exitFunction(); }  // error handling
   if (weight < THRESHOLD) { return 0; }                      // Box 0
   return 1;                                                  // Box 1
 }
@@ -111,8 +111,8 @@ int sort(float weight) {
  * 
  * @return -1 if triggered and 1 if not triggered
  */
-int lightbarrier() {
-  if ((standart_lb - analogRead(Lichtschranke)) < sensitivity_lightbarrier) {
+int light_barrier() {
+  if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {
     return -1;
   } else {
     return 0;
@@ -122,18 +122,18 @@ int lightbarrier() {
 // main code to run repeatedly:
 void loop() {
 
-  // Checks the lightbarrier and exits the funktion if triggert
-  if (lightbarrier() < 0) {
+  // checks the light barrier and exits the function if triggered
+  if (light_barrier() < 0) {
     exitFunction();
   }
-  //sorting package and sending instrucktions to robot
+  // sorting package and sending instructions to robot
   sendPacket(byte(sorting()));
 }
 
 
 
 /**
-* funktion sorting the packege and updating package count
+* function sorting the package and updating package count
 * return 1 = box_1 return 2 = box_2
 */
 int sorting() {
@@ -146,7 +146,7 @@ int sorting() {
 
 
 /**
-*Set up for the WIFI uses predefined SSID and Password
+* Set up for the WIFI uses predefined SSID and Password
 */
 int setUpWiFi() {
   Serial.begin(9600);

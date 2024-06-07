@@ -7,11 +7,12 @@
 #include <EEPROM.h>
 #endif
 /* Definition for sensor connections slots */
-#define Lichtschranke A0
+#define LIGHT_BARRIER A0
 #define LED 10
-#define Laser 2
-// Sets the differenz in Voltag for the lightbarrier to trigger
-#define sensitivity_lightbarrier -100
+#define LASER 2
+#define BUTTON 3
+// Sets the difference in voltage for the light barrier to trigger
+#define SENSITIVITY_LIGHT_BARRIER -100
 // define pins for scale and initializes LoadCell
 const int HX711_dout = 4;  //mcu > HX711 dout pin
 const int HX711_sck = 5;   //mcu > HX711 sck pin
@@ -74,18 +75,22 @@ void setup() {
   /* initialize the sensors*/
   pinMode(BUTTON, INPUT);
   pinMode(LED, OUTPUT);
-  pinMode(Laser, OUTPUT);
-  pinMode(Lichtschranke, INPUT);
-  standart_lichtwiederstand = analogRead(Lichtschranke);
-  Serial.println(standart_lichtwiederstand);
-  digitalWrite(Laser, HIGH);
+  pinMode(LASER, OUTPUT);
+  pinMode(LIGHT_BARRIER, INPUT);
+  standard_lb = analogRead(LIGHT_BARRIER);
+  digitalWrite(LASER, HIGH);
+
   // start up scale
   startup_Scale();
 
   //NR_BOXES initialisieren
   //THRESHOLD initialisieren
-
   initializingArray();
+
+    //visual output for Startup
+  digitalWrite(LED, HIGH);
+  delay(5000);
+  digitalWrite(LED, LOW);
 }
 
 
@@ -114,10 +119,7 @@ void startup_Scale() {
     LoadCell.setCalFactor(calibrationValue);  // set calibration value (float)
     Serial.println("Startup is complete");
   }
-  //visual output for Startup
-  digitalWrite(LED, HIGH);
-  delay(5000);
-  digitalWrite(LED, LOW);
+
 }
 
 

@@ -38,7 +38,7 @@ build_nginx:
     - cd raspi-webserver
     - docker build -t $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG -f Dockerfile .
     - echo test2
-    - docker push $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG
+    - docker push $REGISTRY/erikh/praktikum-warensortierung:$IMAGE_TAG
     - echo test3
 
 build_raspi:
@@ -46,4 +46,4 @@ build_raspi:
   script:
     - cd raspi-robot
     - docker build -t $REGISTRY/erikh/praktikum-warensortierung/raspi-robot:$IMAGE_TAG -f Dockerfile .
-    - docker push $REGISTRY/erikh/praktikum-warensortierung/raspi-robot:$IMAGE_TAG
+    - docker push $REGISTRY/erikh/praktikum-warensortierung:$IMAGE_TAG

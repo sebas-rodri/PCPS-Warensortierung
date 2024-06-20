@@ -4,16 +4,15 @@ default:
     - docker:24.0.5-dind
   before_script:
     - docker info
-    - echo "$CI_DEPLOY_PASSWORD" | docker login $CI_REGISTRY -u $CI_DEPLOY_USER --password-stdin
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 
 stages:
   - build
-  - push
 
 variables:
   # When you use the dind service, you must instruct Docker to talk with
-  # the daemon started inside of the service. The daemon is available
+  # the daemon started inside the service. The daemon is available
   # with a network connection instead of the default
   # /var/run/docker.sock socket. Docker 19.03 does this automatically
   # by setting the DOCKER_HOST in
@@ -35,16 +34,13 @@ variables:
 build_nginx:
   stage: build
   script:
-    - echo test1
     - cd raspi-webserver
-    - docker build -t $REGISTRY/erikh/praktikum-warensortierung -f Dockerfile .
-    - echo test2
-    - docker push $REGISTRY/erikh/praktikum-warensortierung
-    - echo test3
+    - docker build -t $CI_REGISTRY_IMAGE/webserver:latest -f Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/webserver:latest
 
 build_raspi:
   stage: build
   script:
     - cd raspi-robot
-    - docker build -t $REGISTRY/erikh/praktikum-warensortierung -f Dockerfile .
-    - docker push $REGISTRY/erikh/praktikum-warensortierung
+    - docker build -t $CI_REGISTRY_IMAGE/robot:latest -f Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/robot:latest

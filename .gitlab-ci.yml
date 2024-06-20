@@ -25,11 +25,9 @@ build_nginx:
   script:
     - docker build -t $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG -f raspi-webserver/Dockerfile .
     - docker push $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG
-  privileged: true
 
 build_raspi:
   stage: build
   script:
     - docker build -t $REGISTRY/erikh/praktikum-warensortierung/raspi-robot:$IMAGE_TAG -f raspi-robot/Dockerfile .
     - docker push $REGISTRY/erikh/praktikum-warensortierung/raspi-robot:$IMAGE_TAG
-  privileged: true

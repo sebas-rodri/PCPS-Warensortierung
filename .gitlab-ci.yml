@@ -1,0 +1,29 @@
+# .gitlab-ci.yml
+image: docker:latest
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - push
+
+variables:
+  # Use the GitLab Container Registry
+  REGISTRY: $CI_REGISTRY
+  IMAGE_TAG: $CI_COMMIT_REF_NAME
+
+before_script:
+  - docker login -u ErikH -p sSuAoktqEP7Fcoz9T1ig $CI_REGISTRY
+
+build_nginx:
+  stage: build
+  script:
+    - docker build -t $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG -f raspi-webserver/Dockerfile .
+    - docker push $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG
+
+build_raspi:
+  stage: build
+  script:
+    - docker build -t $REGISTRY/erikh/praktikum-warensortierung/raspi-robot:$IMAGE_TAG -f raspi-robot/Dockerfile .
+    - docker push $REGISTRY/erikh/praktikum-warensortierung/raspi-robot:$IMAGE_TAG

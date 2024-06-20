@@ -4,7 +4,8 @@ default:
     - docker:24.0.5-dind
   before_script:
     - docker info
-    - docker login -u ErikH -p sSuAoktqEP7Fcoz9T1ig $CI_REGISTRY
+    - echo "$CI_DEPLOY_PASSWORD" | docker login $CI_REGISTRY -u $CI_DEPLOY_USER --password-stdin
+
 
 stages:
   - build

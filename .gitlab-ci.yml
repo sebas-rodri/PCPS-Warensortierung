@@ -2,7 +2,10 @@
 image: docker:latest
 
 services:
-  - docker:dind
+  - name: docker:dind
+    command: ["--tls=false"]
+    entrypoint: ["sh", "-c", "while ! docker info; do sleep 1; done"]
+    privileged: true
 
 stages:
   - build
@@ -12,6 +15,8 @@ variables:
   # Use the GitLab Container Registry
   REGISTRY: $CI_REGISTRY
   IMAGE_TAG: $CI_COMMIT_REF_NAME
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
 
 before_script:
   - docker login -u ErikH -p sSuAoktqEP7Fcoz9T1ig $CI_REGISTRY

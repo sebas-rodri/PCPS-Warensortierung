@@ -28,7 +28,7 @@ variables:
   DOCKER_TLS_CERTDIR: "/certs"
   # Use the GitLab Container Registry
   REGISTRY: $CI_REGISTRY
-  IMAGE_TAG: $CI_COMMIT_REF_NAME
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   # DOCKER_DRIVER: overlay2
 
 build_nginx:

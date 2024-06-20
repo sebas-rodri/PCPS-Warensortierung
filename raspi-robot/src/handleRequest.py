@@ -1,8 +1,8 @@
 import socket
+import logging
 from arduino_commands import *
 from robot_functions import Robot
-import logging
-
+from database import DatabaseManager
 
 class Server:
     """
@@ -20,22 +20,27 @@ class Server:
         logging.info(f"Server listening on {host}:{port}")
 
         self.robot = Robot()
+        self.db_manager = DatabaseManager('raspi/src/database.db')
 
     def run(self) -> None:
         """
         Listens for incoming connections, then forwards them to the handler.
         :return: 1
         """
-        while True:
-            try:
-                # Receive 1 byte, bcs we know the command is 1 byte
-                command, client_address = self.server_socket.recvfrom(1)
-                if command:
-                    logging.debug(f"Client address: {client_address}")
-                    # Decode the byte string
-                    self.handleCommand(command[0])
-            except Exception as e:
-                logging.exception(e)
+        try:
+            while True:
+                try:
+                    # Receive 1 byte, bcs we know the command is 1 byte
+                    command, client_address = self.server_socket.recvfrom(1)
+                    if command:
+                        logging.debug(f"Client address: {client_address}")
+                        # Decode the byte string
+                        self.handleCommand(command[0])
+                except Exception as e:
+                    logging.exception(e)
+        finally:
+            self.db_manager.close()
+            logging.debug("Server shut down and database closed")
 
     def handleCommand(self, command: int) -> None:
         """
@@ -50,9 +55,13 @@ class Server:
         elif command == BUCKET_ONE:
             logging.info(f"Bucket one command received")
             self.robot.itemToBoxOne()
+            weight_of_packet = 100 # tbd
+            self.db_manager.set(weight_of_packet, 1)
         elif command == BUCKET_TWO:
             logging.info(f"Bucket two command received")
             self.robot.itemToBoxTwo()
+            weight_of_packet = 100 # tbd
+            self.db_manager.set(weight_of_packet, 2)
         else:
             logging.error("Invalid command")
 
@@ -81,4 +90,3 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     server = Server('0.0.0.0', 2360)
     server.run()
-

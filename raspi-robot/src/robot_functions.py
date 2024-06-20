@@ -1,7 +1,7 @@
 import time
 import wlkata_mirobot
 
-POSITION_SCALE = (80, -230, 60)
+POSITION_SCALE = (70, -230, 50)
 POSITION_BOX_1 = (50, 240, 100)
 POSITION_BOX_2 = (-150, 240, 100)
 
@@ -38,6 +38,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         :return: None
         """
         # Move to scale
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
         # Pickup item
         self.pump_on()
@@ -60,6 +61,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         :return: None
         """
         # Move to scale
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
         # Pickup item
         self.pump_suction()

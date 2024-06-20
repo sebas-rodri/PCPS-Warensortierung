@@ -1,10 +1,5 @@
 # .gitlab-ci.yml
-image: docker:dind
-
-services:
-  - name: docker:dind
-    command: ["--tls=false"]
-    entrypoint: ["sh", "-c", "while ! docker info; do sleep 1; done"]
+image: docker:latest
 
 stages:
   - build

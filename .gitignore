@@ -3,4 +3,4 @@
 .gitignore
 .DS_Store
 __pycache__/
-raspi/__pycache__/
+raspi-robot/__pycache__/

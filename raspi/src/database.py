@@ -31,14 +31,6 @@ class DatabaseManager:
         """
         try:
             self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS boxes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                weight_threshold INTEGER NOT NULL
-            )
-            ''')
-            logging.debug("Table 'boxes' created or already exists")
-
-            self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS packets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 weight INTEGER NOT NULL,
@@ -57,7 +49,6 @@ class DatabaseManager:
             )
             ''')
             logging.debug("Table 'archive' created or already exists")
-
             self.conn.commit()
         except sqlite3.Error as e:
             logging.exception(f"Error creating tables: {e}")
@@ -101,6 +92,7 @@ class DatabaseManager:
                 row = self.cursor.fetchone()
                 logging.info(f"Data retrieved from 'packets' table for id={packet_id}: {row}")
                 print(row)
+                return row
             except sqlite3.Error as e:
                 logging.exception(f"Error retrieving data: {e}")
     
@@ -160,10 +152,8 @@ class DatabaseManager:
         """
         if self.cursor:
             try:
-                self.cursor.execute('SELECT id FROM boxes')
-                box_ids = self.cursor.fetchall()
-                for box_id in box_ids:
-                    self.emptyBox(box_id[0])              
+                for box_id in range(1,2):   #set to number of boxes
+                    self.emptyBox(box_id)              
                 logging.debug("Emptied all boxes and closed the database connection")
             except sqlite3.Error as e:
                 logging.exception(f"Error emptying all boxes: {e}")

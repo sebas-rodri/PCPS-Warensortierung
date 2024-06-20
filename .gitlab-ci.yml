@@ -23,8 +23,11 @@ before_script:
 build_nginx:
   stage: build
   script:
+    - echo test1
     - docker build -t $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG -f raspi-webserver/Dockerfile .
+    - echo test2
     - docker push $REGISTRY/erikh/praktikum-warensortierung/raspi-webserver:$IMAGE_TAG
+    - echo test3
 
 build_raspi:
   stage: build

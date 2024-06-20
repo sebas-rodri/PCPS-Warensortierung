@@ -45,5 +45,5 @@ build_raspi:
   stage: build
   script:
     - cd raspi-robot
-    - docker build -t $REGISTRY/erikh/praktikum-warensortierung:$IMAGE_TAG -f Dockerfile .
-    - docker push $REGISTRY/erikh/praktikum-warensortierung:$IMAGE_TAG
+    - docker build -t $REGISTRY/erikh/praktikum-warensortierung -f Dockerfile .
+    - docker push $REGISTRY/erikh/praktikum-warensortierung

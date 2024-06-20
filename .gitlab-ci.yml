@@ -36,9 +36,9 @@ build_nginx:
   script:
     - echo test1
     - cd raspi-webserver
-    - docker build -t $REGISTRY/erikh/praktikum-warensortierung:$IMAGE_TAG -f Dockerfile .
+    - docker build -t $REGISTRY/erikh/praktikum-warensortierung -f Dockerfile .
     - echo test2
-    - docker push $REGISTRY/erikh/praktikum-warensortierung:$IMAGE_TAG
+    - docker push $REGISTRY/erikh/praktikum-warensortierung
     - echo test3
 
 build_raspi:

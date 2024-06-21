@@ -9,25 +9,26 @@
 #endif
 
 /*---- Definition for sensor connections slots ----*/
-#define LIGHT_BARRIER A0
+#define LIGHT_BARRIER A4
 #define LED 10
 #define LASER 2
-#define BUTTON 3
-#define SENSITIVITY_LIGHT_BARRIER -100 // Sets the difference in voltage for the light barrier to trigger
-// define pins for scale and initializes LoadCell
-const int HX711_dout = 4;  // mcu > HX711 dout pin
-const int HX711_sck = 5;   // mcu > HX711 sck pin
+#define BUTTON 7
+#define SENSITIVITY_LIGHT_BARRIER -100      // Sets the difference in voltage for the light barrier to trigger
+
+/* define pins for scale and initializes LoadCell */
+const int HX711_dout = 6;  // mcu > HX711 dout pin
+const int HX711_sck = 7;   // mcu > HX711 sck pin
 HX711_ADC LoadCell(HX711_dout, HX711_sck);
 const int calVal_eeprom_address = 0;
 unsigned long t = 0;
 
 /*---- initialize global variables ----*/
-const float MAX_WEIGHT = 500;   // maximal weight for the packages
-float THRESHOLD;                // weight threshold for package sorting
-unsigned int NR_BOXES = 1;      // number of boxes
-int *boxes_array;               // array for storing the amount of packages
-int standard_lb = 0;            // Variable for the standard value of the light barrier
-int full_box = -1;              // variable for the box status
+const float MAX_WEIGHT = 10000;     // maximal weight for the packages
+float THRESHOLD = 20;               // weight threshold for package sorting
+unsigned int NR_BOXES = 1;          // number of boxes
+int *boxes_array;                   // array for storing the amount of packages
+int standard_lb = 60;               // Variable for the standard value of the light barrier
+int full_box = -1;                  // variable for the box status
 
 /*-----Initializing Variable for WIFI--------*/
 char ssid[] = SECRET_SSID;  // your network SSID (name)
@@ -75,10 +76,10 @@ void setup() {
     standard_lb = analogRead(LIGHT_BARRIER);
     digitalWrite(LASER, HIGH);
 
-    startup_Scale();                            // start up scale
-
     // init THRESHOLD
     initializingArray();
+    startup_Scale();
+    setUpWiFi();
 
     /* visual output for Startup */
     digitalWrite(LED, HIGH);
@@ -94,18 +95,20 @@ void startup_Scale() {
     LoadCell.begin();
     //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
     float calibration_value;                                // calibration value (see example file "Calibration.ino")
-    //calibration_value = 887.24;                           // uncomment to set the calibration value in the sketch
-#if defined(ESP8266) || defined(ESP32)
-    EEPROM.begin(512);                                      // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
-#endif
-    EEPROM.get(calVal_eeprom_address, calibration_value);   // fetch the calibration value from eeprom
+    calibration_value = 800;                                // uncomment to set the calibration value in the sketch
+
+    //#if defined(ESP8266) || defined(ESP32)
+    //    EEPROM.begin(512);                                      // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
+    //#endif
+    //    EEPROM.get(calVal_eeprom_address, calibration_value);   // fetch the calibration value from eeprom
+
     unsigned long stabilizing_time = 2000;                  // precision right after power-up can be improved by adding a few seconds of stabilizing time
     boolean _tare = true;                                   // set false to skip tare in the next step
     LoadCell.start(stabilizing_time, _tare);
     if (LoadCell.getTareTimeoutFlag()) {
-        // Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
-        // while (1);
-        exitFunction("s");
+        Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
+        while (1);
+        //exitFunction("s");
     } else {
         LoadCell.setCalFactor(calibration_value);           // set calibration value (float)
         Serial.println("Startup is complete");
@@ -153,13 +156,34 @@ int light_barrier() {
 
 // main code to run repeatedly:
 void loop() {
+    if (1 == 1) {
 
-    // checks the light barrier and exits the function if triggered
-    if (light_barrier() < 0) {
-        exitFunction("l");
+        // checks the light barrier and exits the function if triggered
+        if (light_barrier() == -1) {
+
+            //Serial.println(sorting());
+            sendPacket(byte(sorting()));    // sorting package and sending instructions to robot
+            digitalWrite(LED, HIGH);        // signal for sending
+
+            delay(10000);
+            digitalWrite(LED, LOW);
+
+        }
+        // error handeling noch ausarbeten
+        else {
+            Serial.println("Lichtschranke blockiert");    //error message
+            digitalWrite(LED, HIGH);
+            delay(200);
+            digitalWrite(LED, LOW);
+            digitalWrite(LED, HIGH);
+            delay(200);
+            digitalWrite(LED, LOW);
+            digitalWrite(LED, HIGH);
+            delay(200);
+            digitalWrite(LED, LOW);
+        }
     }
-    // sorting package and sending instructions to robot
-    sendPacket(byte(sorting()));
+
 }
 
 
@@ -169,6 +193,12 @@ void loop() {
  * @return 0 for Box 1 and 1 for Box 2
  */
 int sorting() {
+    // ???
+    for (int i = 0; i <= 20; i++) {
+        Serial.println(scale());
+        delay(50);
+    }
+
     float weight = scale();
     int witch_box = sort(weight);
     boxes_array[witch_box]++;       // increase the counter for the amount of packages in the box

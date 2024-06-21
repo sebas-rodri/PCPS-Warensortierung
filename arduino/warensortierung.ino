@@ -7,13 +7,13 @@
 #if defined(ESP8266) || defined(ESP32) || defined(AVR)
 #include <EEPROM.h>
 #endif
-/* Definition for sensor connections slots */
+
+/*---- Definition for sensor connections slots ----*/
 #define LIGHT_BARRIER A0
 #define LED 10
 #define LASER 2
 #define BUTTON 3
-// Sets the difference in voltage for the light barrier to trigger
-#define SENSITIVITY_LIGHT_BARRIER -100
+#define SENSITIVITY_LIGHT_BARRIER -100 // Sets the difference in voltage for the light barrier to trigger
 // define pins for scale and initializes LoadCell
 const int HX711_dout = 4;  // mcu > HX711 dout pin
 const int HX711_sck = 5;   // mcu > HX711 sck pin
@@ -21,20 +21,13 @@ HX711_ADC LoadCell(HX711_dout, HX711_sck);
 const int calVal_eeprom_address = 0;
 unsigned long t = 0;
 
-// initialize global variables
-
-//maximal weight for the packages
-const float MAX_WEIGHT = 500;
-// weight threshold for package sorting
-float THRESHOLD;
-// number of boxes
-unsigned int NR_BOXES = 1;
-// array for storing the amount of packages
-int *boxes_array;
-//Variable for the standard value of the light barrier
-int standard_lb = 0;
-//variable for the box status
-int full_box = -1;
+/*---- initialize global variables ----*/
+const float MAX_WEIGHT = 500;   // maximal weight for the packages
+float THRESHOLD;                // weight threshold for package sorting
+unsigned int NR_BOXES = 1;      // number of boxes
+int *boxes_array;               // array for storing the amount of packages
+int standard_lb = 0;            // Variable for the standard value of the light barrier
+int full_box = -1;              // variable for the box status
 
 /*-----Initializing Variable for WIFI--------*/
 char ssid[] = SECRET_SSID;  // your network SSID (name)
@@ -42,13 +35,15 @@ char pass[] = SECRET_PASS;  // your network password (use for WPA, or use as key
 int status = WL_IDLE_STATUS;
 WiFiUDP Udp;
 
-/*-----------------------*/
+/*---------- Functions-------------*/
 
 /**
- * orderly shut down of the entire system
+ * orderly shut down of the entire system and sending of error messages
  */
-// to implement
-void exitFunction() {
+void exitFunction(char error) {
+    // send error message to raspi
+    free(boxes_array);
+    exit(0);
 }
 
 /**
@@ -59,7 +54,7 @@ void initializingArray() {
     boxes_array = (int *) malloc(NR_BOXES * sizeof(int));
     // error handling
     if (boxes_array == NULL) {
-        exitFunction();
+        exitFunction("m");
     }
 
     // initialization with 0
@@ -69,8 +64,7 @@ void initializingArray() {
 
 // setup code to run once:
 void setup() {
-    // Setup for testing with serial port(9600)
-    Serial.begin(9600);
+    Serial.begin(9600);                         // Setup for testing with serial port(9600)
     Serial.print("test begin\n");
 
     /* initialize the sensors*/
@@ -81,14 +75,12 @@ void setup() {
     standard_lb = analogRead(LIGHT_BARRIER);
     digitalWrite(LASER, HIGH);
 
-    // start up scale
-    startup_Scale();
+    startup_Scale();                            // start up scale
 
-    // init NR_BOXES
     // init THRESHOLD
     initializingArray();
 
-    //visual output for Startup
+    /* visual output for Startup */
     digitalWrite(LED, HIGH);
     delay(5000);
     digitalWrite(LED, LOW);
@@ -97,26 +89,25 @@ void setup() {
 
 /**
  * setup the scale for measurements
- * 
- * @param none is the message to send
  */
 void startup_Scale() {
     LoadCell.begin();
-    //LoadCell.setReverseOutput(); //uncomment to turn a negative output value to positive
-    float calibration_value;  // calibration value (see example file "Calibration.ino")
-    //calibration_value = 887.24; // uncomment to set the calibration value in the sketch
+    //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
+    float calibration_value;                                // calibration value (see example file "Calibration.ino")
+    //calibration_value = 887.24;                           // uncomment to set the calibration value in the sketch
 #if defined(ESP8266) || defined(ESP32)
-    EEPROM.begin(512);  // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
+    EEPROM.begin(512);                                      // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
 #endif
-    EEPROM.get(calVal_eeprom_address, calibration_value);  // fetch the calibration value from eeprom
-    unsigned long stabilizing_time = 2000;               // precision right after power-up can be improved by adding a few seconds of stabilizing time
-    boolean _tare = true;                               // set false to skip tare in the next step
+    EEPROM.get(calVal_eeprom_address, calibration_value);   // fetch the calibration value from eeprom
+    unsigned long stabilizing_time = 2000;                  // precision right after power-up can be improved by adding a few seconds of stabilizing time
+    boolean _tare = true;                                   // set false to skip tare in the next step
     LoadCell.start(stabilizing_time, _tare);
     if (LoadCell.getTareTimeoutFlag()) {
-        Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
-        while (1);
+        // Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
+        // while (1);
+        exitFunction("s");
     } else {
-        LoadCell.setCalFactor(calibration_value);  // set calibration value (float)
+        LoadCell.setCalFactor(calibration_value);           // set calibration value (float)
         Serial.println("Startup is complete");
     }
 
@@ -124,15 +115,15 @@ void startup_Scale() {
 
 
 /**
- * read out the scale and handle errors
+ * read out the scale
  * 
  * @returns weight of package
  */
 // to implement
 float scale() {
-    while (!LoadCell.update()) {}  // wait for scale output
+    while (!LoadCell.update()) {}           // wait for scale output
     float weight = LoadCell.getData();
-    //Serial.println(weight); // test scale weight
+    //Serial.println(weight);               // test scale weight
     return weight;
 }
 
@@ -143,22 +134,21 @@ float scale() {
  * @returns number of box or -1 on error
  */
 int sort(float weight) {
-    if (weight < 0 || weight > THRESHOLD) { exitFunction(); }  // error handling
-    if (weight < THRESHOLD) { return 0; }                      // Box 0
-    return 1;                                                  // Box 1
+    if (weight < 0 || weight > MAX_WEIGHT) { exitFunction("w"); }   // error handling
+    if (weight < THRESHOLD) { return 0; }                           // Box 0
+    return 1;                                                       // Box 1
 }
 
 /**
  * read out the photoelectric sensor
  * 
- * @return -1 if triggered and 1 if not triggered
+ * @return -1 if triggered and 0 if not triggered
  */
 int light_barrier() {
     if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {
         return -1;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 // main code to run repeatedly:
@@ -166,7 +156,7 @@ void loop() {
 
     // checks the light barrier and exits the function if triggered
     if (light_barrier() < 0) {
-        exitFunction();
+        exitFunction("l");
     }
     // sorting package and sending instructions to robot
     sendPacket(byte(sorting()));
@@ -174,20 +164,21 @@ void loop() {
 
 
 /**
-* function sorting the package and updating package count
-* return 1 = box_1 return 2 = box_2
-*/
+ * function sorting the package and updating package count
+ *
+ * @return 0 for Box 1 and 1 for Box 2
+ */
 int sorting() {
     float weight = scale();
     int witch_box = sort(weight);
-    boxes_array[witch_box]++;  // increase the counter for the amount of packages in the box
+    boxes_array[witch_box]++;       // increase the counter for the amount of packages in the box
     return witch_box;
 }
 
 
 /**
-* Set up for the WIFI uses predefined SSID and Password
-*/
+ * Set up for the WIFI uses predefined SSID and Password
+ */
 int setUpWiFi() {
     Serial.begin(9600);
     while (!Serial) { ;  // wait for serial port to connect. Needed for native USB port only
@@ -195,9 +186,11 @@ int setUpWiFi() {
 
     // check for the Wi-Fi module:
     if (WiFi.status() == WL_NO_MODULE) {
-        Serial.println("Communication with WiFi module failed!");
+
+        // Serial.println("Communication with WiFi module failed!");
         // don't continue
-        while (true);
+        // while (true);
+        exitFunction("i");
     }
 
     String fv = WiFi.firmwareVersion();
@@ -236,20 +229,21 @@ int setUpWiFi() {
 }
 
 /**
-* @param command is the parameter to sends a UDP Packet with the give command
-*/
-
+ * send a packet to RaspberryPi
+ * @param command is the parameter to sends a UDP Packet with the give command
+ */
 int sendPacket(byte command) {
     Serial.println("Send Packet");
     if (!Udp.beginPacket(IPAddress(IP_ADDRESS), PORT)) {
         Serial.println("Problem Udp.beginPacket");
+        exitFunction("b");
     }
 
     Udp.write(command);
 
-
     if (!Udp.endPacket()) {
         Serial.println("The packet wasn't send.");
+        exitFunction("b");
     }
     Serial.println(command);
 }

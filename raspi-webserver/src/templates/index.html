@@ -3,10 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask-SocketIO Example</title>
+    <title>Robot Dashboard</title>
+    
 </head>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    color: #405c93;
+    background-color: #121212;
+    }
+
+    .header {
+        text-align: center;
+    }
+    .dashboard {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        height: 60vh;
+    }
+
+    .boxgreen {
+    background-color: #50b566;
+    text-align: center;
+    width: 60vw;
+    height: 60vh;
+    border-radius: 10px;
+    }
+
+    .boxred {
+    background-color: #c53939;
+    text-align: center;
+    width: 60vw;
+    height: 60vh;
+    border-radius: 10px;
+    }
+
+    .boxgreen h2, .boxred h2 {
+        color: white;
+        font-size: 1.9vw;
+    }
+    .counter {
+        width: 100%;
+        height: 100%;
+        color: black;
+        font-style: bold;
+        font-size: 8vw;
+    }
+
+    .buttondiv{
+        text-align: center;
+        padding-top: 2.5%;
+    }
+    .button {
+    align-self: center;
+    background-color: #405c93;
+    color: white;
+    padding: 10px 20px;
+    border: white;
+    border-radius: 2px;
+    }
+</style>
 <body>
-    <h1>Dashboard</h1>
+    <h1 class="header">Wareneinang-Sortierung</h1>
+    <div class="dashboard">
+        <div class="boxgreen">
+            <h2>&lt;250 gramm</h2>
+            <p class="counter">99</p>
+        </div>
+        <div class="boxred">
+            <h2>&gt;250 gramm</h2>
+            <p class="counter">77</p>
+        </div>
+    </div>
+    <div class="buttondiv">
+        <button onclick="sendMessage()" class="button">Start/Stop</button>
+    </div>
     
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>

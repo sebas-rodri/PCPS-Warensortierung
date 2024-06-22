@@ -68,13 +68,13 @@
 <body>
     <h1 class="header">Wareneinang-Sortierung</h1>
     <div class="dashboard">
-        <div class="boxgreen">
+        <div class="boxgreen" id="divbox1">
             <h2>&lt;250 gramm</h2>
-            <p class="counter">99</p>
+            <p class="counter" id="box1">0</p>
         </div>
         <div class="boxred">
             <h2>&gt;250 gramm</h2>
-            <p class="counter">77</p>
+            <p class="counter" id="box2">77</p>
         </div>
     </div>
     <div class="buttondiv">
@@ -86,12 +86,57 @@
     <script>
         const socket = io();
 
+        let box1counter = 0;
+        let box2counter = 0;
         socket.on('connect', () => {
             console.log('Connected to WebSocket server');
         });
 
         socket.on('message_from_server', (data) => {
             console.log('Received message from server:', data);
+        });
+
+        function incrementBox1() {
+            var element = document.getElementById("box1");
+            var currentValue = parseInt(element.innerText);
+            box1counter++;
+            element.innerText = box1counter;
+        }
+
+        function incrementBox2() {
+            var element = document.getElementById("box2");
+            var currentValue = parseInt(element.innerText);
+            element.innerText = currentValue + 1;
+        }
+
+        socket.on('box1_full', () => {
+            //change to red
+            changeColorToRed();
+        });
+
+        socket.on('box1_empty', () => {
+            //change to green
+            changeColorToGreen();
+        });
+
+        function changeColorToRed(){
+            //change the class of div
+            document.getElementById("divbox1").className = "boxred";
+            document.getElementById("box1").innerText = "Empty Box 1";
+        }
+
+        function changeColorToGreen(){
+            //change the class of div
+            document.getElementById("divbox1").className = "boxgreen";
+            document.getElementById("box1").innerText = box1counter;
+        }
+
+        socket.on('update_counter2', (value) => {
+            incrementBox2();
+        });
+
+        socket.on('update_counter1', (value) => {
+            incrementBox1();
         });
 
         function startOrPause() {

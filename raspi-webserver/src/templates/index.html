@@ -64,6 +64,7 @@
     border-radius: 2px;
     }
 </style>
+
 <body>
     <h1 class="header">Wareneinang-Sortierung</h1>
     <div class="dashboard">
@@ -77,7 +78,8 @@
         </div>
     </div>
     <div class="buttondiv">
-        <button onclick="sendMessage()" class="button">Start/Stop</button>
+        <button onclick="startOrPause()">Start/Stop</button>
+        <button>his</button>
     </div>
     
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -91,6 +93,10 @@
         socket.on('message_from_server', (data) => {
             console.log('Received message from server:', data);
         });
+
+        function startOrPause() {
+            socket.emit('start/pause');
+        }
 
         function sendMessage() {
             const message = document.getElementById('messageInput').value;

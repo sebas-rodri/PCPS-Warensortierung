@@ -90,6 +90,12 @@ def handle_message(data):
 def handle_start_pause():
     activeSession.start_pause()
 
+@socketio.on('get_counter_value')
+def handle_get_counter_value():
+    print('Getting counter value')
+    socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
+    socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
+
 def test_thread():
     while True:
         time.sleep(1)

@@ -55,13 +55,35 @@
         text-align: center;
         padding-top: 2.5%;
     }
-    .button {
-    align-self: center;
-    background-color: #405c93;
-    color: white;
-    padding: 10px 20px;
-    border: white;
-    border-radius: 2px;
+    .buttonblue {
+        align-self: center;
+        background-color: #405c93;
+        color: white;
+        padding: 10px 20px;
+        border: white;
+        border-radius: 2px;
+        transition: background-color 0.3s;
+        font-size: 2vw;
+    }
+
+    .buttonblue:active {
+    background-color: #2e456e; /* Darker shade of blue for click effect */
+    }
+
+    .buttonred {
+        align-self: center;
+        background-color: #c53939;
+        color: white;
+        padding: 10px 20px;
+        border: white;
+        border-radius: 2px;
+        transition: background-color 0.3s;
+        font-size: 2vw;
+
+    }
+
+    .buttonred:active {
+    background-color: #a52e06; 
     }
 </style>
 
@@ -72,24 +94,24 @@
             <h2>&lt;250 gramm</h2>
             <p class="counter" id="box1">0</p>
         </div>
-        <div class="boxred">
+        <div class="boxgreen" id="divbox2">
             <h2>&gt;250 gramm</h2>
             <p class="counter" id="box2">77</p>
         </div>
     </div>
     <div class="buttondiv">
-        <button onclick="startOrPause()">Start/Stop</button>
-        <button>his</button>
+        <button onclick="startOrPause()" class="buttonblue" id="button">Stop</button>
     </div>
     
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         const socket = io();
 
-        let box1counter = 0;
+        let box1counter = 0; //function to get current value of box1
         let box2counter = 0;
         socket.on('connect', () => {
             console.log('Connected to WebSocket server');
+            socket.emit('get_counter_value');
         });
 
         socket.on('message_from_server', (data) => {
@@ -111,24 +133,50 @@
 
         socket.on('box1_full', () => {
             //change to red
-            changeColorToRed();
+            document.getElementById("divbox1").className = "boxred";
+            document.getElementById("box1").innerText = "Full Box 1";
+        });
+
+        socket.on('box2_full', () => {
+            //change to red
+            document.getElementById("divbox2").className = "boxred";
+            document.getElementById("box2").innerText = "Full Box 2";
         });
 
         socket.on('box1_empty', () => {
             //change to green
-            changeColorToGreen();
+            document.getElementById("divbox1").className = "boxgreen";
+            document.getElementById("box1").innerText = box1counter;
         });
 
-        function changeColorToRed(){
+        socket.on('box2_empty', () => {
+            //change to green
+            document.getElementById("divbox2").className = "boxgreen";
+            document.getElementById("box2").innerText = box2counter;
+        });
+
+        function changeColorToRed(box){
             //change the class of div
-            document.getElementById("divbox1").className = "boxred";
-            document.getElementById("box1").innerText = "Empty Box 1";
+            if(box == 1){
+                document.getElementById("divbox1").className = "boxred";
+                document.getElementById("box1").innerText = "Full Box 1";
+            }
+            if(box == 2){
+                document.getElementById("divbox2").className = "boxred";
+                document.getElementById("box2").innerText = "Full Box 2";
+            }
         }
 
         function changeColorToGreen(){
             //change the class of div
-            document.getElementById("divbox1").className = "boxgreen";
-            document.getElementById("box1").innerText = box1counter;
+                document.getElementById("divbox1").className = "boxgreen";
+                document.getElementById("box1").innerText = box1counter;
+        }
+
+        function changeColorToGreen2(){
+            //change the class of div
+                document.getElementById("divbox2").className = "boxgreen";
+                document.getElementById("box2").innerText = box1counter;
         }
 
         socket.on('update_counter2', (value) => {
@@ -139,7 +187,27 @@
             incrementBox1();
         });
 
+        socket.on('set_counter1', (data) => {
+            box1counter = data.value;
+            document.getElementById("box1").innerText = box1counter;
+        });
+
+        socket.on('set_counter2', (data) => {
+            box2counter = data.value;
+            document.getElementById("box2").innerText = box2counter;
+        });
+
+        function getCounterValue(){
+            socket.emit('get_counter_value');
+        }
         function startOrPause() {
+            if(document.getElementById('button').className === 'buttonred'){
+                document.getElementById('button').innerText = 'Start';
+                document.getElementById('button').className = 'buttonblue';}
+            else{
+                document.getElementById('button').innerText = 'Stop';
+                document.getElementById('button').className = 'buttonred';
+            }
             socket.emit('start/pause');
         }
 

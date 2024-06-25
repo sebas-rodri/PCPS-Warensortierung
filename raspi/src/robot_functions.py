@@ -3,7 +3,7 @@ import wlkata_mirobot
 
 POSITION_SCALE = (70, -230, 50)
 POSITION_BOX_1 = (50, 240, 100)
-POSITION_BOX_2 = (-150, 240, 100)
+POSITION_BOX_2 = (-70, 200, 75)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):

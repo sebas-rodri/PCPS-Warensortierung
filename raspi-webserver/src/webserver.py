@@ -2,52 +2,13 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import threading
 import time
-
+from session import Session
+import socket
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode='threading')
 
 
-class Session:
-    def __init__(self):
-        self.active = True
-        self.box1 = 0
-        self.box2 = 0
-        self.lock = threading.Lock()
-    
-    def start_pause(self):
-        self.active = not self.active
-        print(f'Active: {self.active}')
-    
-    def update_box1(self, value):
-        with self.lock:
-            self.box1 = value
-            print(f'Box1: {self.box1}')
-    
-    def update_box2(self, value):
-        self.box2 = value
-        print(f'Box2: {self.box2}')
-    
-    def increment_box1(self):
-        with self.lock:
-            self.box1 += 1
-            print(f'Box1: {self.box1}')
-        
-    def increment_box2(self):
-        with self.lock:
-            self.box2 += 1
-            print(f'Box2: {self.box2}')
-    
-    def decrement_box1(self):
-        if self.box1 > 0:
-            self.box1 -= 1
-        print(f'Box1: {self.box1}')
-    
-    def decrement_box2(self):
-        if self.box2 > 0:
-            self.box2 -= 1
-        print(f'Box2: {self.box2}')
-    
 
 @app.route('/')
 def index():
@@ -95,6 +56,7 @@ def handle_get_counter_value():
     print('Getting counter value')
     socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
     socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
+    
 
 def test_thread():
     while True:
@@ -111,8 +73,36 @@ def test_thread():
         elif command == 'q':
             break
 
+def handle_data(data):
+    #TODO: Implemented full functionality
+    if data == b'box1':
+        increment('box1')
+    elif data == b'box2':
+        increment('box2')
+    elif data == b'full':
+        box1full()
+    elif data == b'empty':
+        box1empty()
+
+def listener_thread():
+        print('Listener thread')
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('0.0.0.0', 5001))
+            s.listen()
+            print('Listening on port 5001')
+            while True:
+                time.sleep(1)
+                client, addr = s.accept()
+                with client:
+                    print('Connected by', addr)
+                    while True:
+                        data = client.recv(1024)
+                        if not data:
+                            break
+                        handle_data(data)          
+
 if __name__ == '__main__':
     activeSession = Session()
-    thread = threading.Thread(target=test_thread)
+    thread = threading.Thread(target=listener_thread)
     thread.start()
-    socketio.run(app, debug=False)
+    socketio.run(app, debug=False, host='0.0.0.0',port=4999)

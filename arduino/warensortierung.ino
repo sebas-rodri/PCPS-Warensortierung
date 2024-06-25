@@ -55,7 +55,7 @@ void initializingArray() {
     boxes_array = (int *) malloc(NR_BOXES * sizeof(int));
     // error handling
     if (boxes_array == NULL) {
-        exitFunction("m");
+        exitFunction('m');
     }
 
     // initialization with 0
@@ -108,7 +108,7 @@ void startup_Scale() {
     if (LoadCell.getTareTimeoutFlag()) {
         Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
         while (1);
-        //exitFunction("s");
+        //exitFunction('s');
     } else {
         LoadCell.setCalFactor(calibration_value);           // set calibration value (float)
         Serial.println("Startup is complete");
@@ -137,7 +137,7 @@ float scale() {
  * @returns number of box or -1 on error
  */
 int sort(float weight) {
-    if (weight < 0 || weight > MAX_WEIGHT) { exitFunction("w"); }   // error handling
+    if (weight < 0 || weight > MAX_WEIGHT) { exitFunction('w'); }   // error handling
     if (weight < THRESHOLD) { return 0; }                           // Box 0
     return 1;                                                       // Box 1
 }
@@ -220,7 +220,7 @@ int setUpWiFi() {
         // Serial.println("Communication with WiFi module failed!");
         // don't continue
         // while (true);
-        exitFunction("i");
+        exitFunction('i');
     }
 
     String fv = WiFi.firmwareVersion();
@@ -266,14 +266,14 @@ int sendPacket(byte command) {
     Serial.println("Send Packet");
     if (!Udp.beginPacket(IPAddress(IP_ADDRESS), PORT)) {
         Serial.println("Problem Udp.beginPacket");
-        exitFunction("b");
-    }
+        exitFunction('b');
+    }c:\Users\Cyberspace\Desktop\praktikum-warensortierung\arduino\warensortierung.ino
 
     Udp.write(command);
 
     if (!Udp.endPacket()) {
         Serial.println("The packet wasn't send.");
-        exitFunction("b");
+        exitFunction('b');
     }
     Serial.println(command);
 }

@@ -75,6 +75,7 @@ def test_thread():
 
 def handle_data(data):
     #TODO: Implemented full functionality
+    # -> weight auch übergeben
     if data == b'box1':
         increment('box1')
     elif data == b'box2':
@@ -105,4 +106,4 @@ if __name__ == '__main__':
     activeSession = Session()
     thread = threading.Thread(target=listener_thread)
     thread.start()
-    socketio.run(app, debug=False, host='0.0.0.0',port=4999)
+    socketio.run(app, debug=False, host='0.0.0.0',port=4999, allow_unsafe_werkzeug=True)

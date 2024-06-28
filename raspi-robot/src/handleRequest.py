@@ -36,11 +36,28 @@ class Server:
                         logging.debug(f"Client address: {client_address}")
                         # Decode the byte string
                         self.handleCommand(command[0])
+                        self.relayCommand(str(command[0]))
                 except Exception as e:
                     logging.exception(e)
         finally:
             self.db_manager.close()
             logging.debug("Server shut down and database closed")
+
+    def relayCommand(self, message, server_address=('localhost', 5001)) -> None:
+        """
+        Relay a command by sending a message to a server at the specified address.
+
+        :param message: The message to send to the server.
+        :param server_address: The address of the server to connect to. Defaults to ('localhost', 5001).
+        :type server_address: Tuple[str, int]
+        :return: None
+        :rtype: None
+        """
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            # Send message to server
+            s.connect(server_address)
+            s.sendall(message.encode())
+            logging.debug(f"Relay command sent to {server_address}")
 
     def handleCommand(self, command: int) -> None:
         """

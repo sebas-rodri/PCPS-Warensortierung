@@ -6,7 +6,10 @@ import os
 class Session:
     def __init__(self):
         self.active = True
-        self.db_manager = DatabaseManager('/app/src/db/database.db')
+        if os.getcwd() == "/app":
+            self.db_manager = DatabaseManager('app/src/db/database.db')
+        else:
+            self.db_manager = DatabaseManager('raspi-webserver/src/db/database.db')
         ''' uncomment for testing
         additional_data = [
             (100, 1),

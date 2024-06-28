@@ -100,7 +100,7 @@
         </div>
     </div>
     <div class="buttondiv">
-        <button onclick="startOrPause()" class="buttonblue" id="button">Stop</button>
+        <button onclick="startOrPause()" class="buttonblue" id="button">Running</button>
     </div>
     
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -202,10 +202,10 @@
         }
         function startOrPause() {
             if(document.getElementById('button').className === 'buttonred'){
-                document.getElementById('button').innerText = 'Start';
+                document.getElementById('button').innerText = 'Running';
                 document.getElementById('button').className = 'buttonblue';}
             else{
-                document.getElementById('button').innerText = 'Stop';
+                document.getElementById('button').innerText = 'Inactive';
                 document.getElementById('button').className = 'buttonred';
             }
             socket.emit('start/pause');

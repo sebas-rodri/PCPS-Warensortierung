@@ -65,7 +65,18 @@ class Server:
     def deconstructData(self, data: bytes) -> None:
         # data from database in * (*data*)
         # data from arduino in ! (!data!)
-        self.handleCommand(-1)
+        messeg = data.decode('utf-8')
+        splitted_messeg = messeg.split("/")
+        
+        if (splitted_messeg[0] == RESET or splitted_messeg[0] == BUCKET_ONE  or splitted_messeg[0] == BUCKET_TWO):
+            self.handleCommand(splitted_messeg[0])
+        elif (splitted_messeg[0] == MALLOC or splitted_messeg[0] == SCALE or splitted_messeg[0] == WEIGHT or splitted_messeg[0] == LIGHT or splitted_messeg[0] == WIFI or splitted_messeg[0] == TCP):
+            print(splitted_messeg[0])
+            #put error handling here
+        else:
+            print("Invalit command")
+            
+        #werte von der wage sind in splitted_messeg[1]
 
     """
     handle commands to robot

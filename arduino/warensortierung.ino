@@ -23,19 +23,14 @@ HX711_ADC LoadCell(HX711_dout, HX711_sck);
 const int calVal_eeprom_address = 0;
 unsigned long t = 0;
 
-// initialize global variables
-
-//maximal weight for the packages
-const float MAX_WEIGHT = 10000;
-// weight threshold for package sorting
-float THRESHOLD = 20;
-// number of boxes
-unsigned int NR_BOXES = 1;
-//Variable for the standard value of the light barrier
-int standard_lb = 0;
-int standard_lb_2 = 0;
-//variable for the box status
-int full_box = -1;
+/*---- initialize global variables ----*/
+const float MAX_WEIGHT = 10000;  // maximal weight for the packages
+float THRESHOLD = 20;            // weight threshold for package sorting
+unsigned int NR_BOXES = 1;       // number of boxes
+int *boxes_array;                // array for storing the amount of packages
+int standard_lb = 0;             // Variable for the standard value of the light barrier
+int standard_lb_2 = 0;           // Variable for the standard value of the light barrier
+int full_box = -1;               // variable for the box status
 
 /*---- Initializing Variable for WIFI ----*/
 char ssid[] = SECRET_SSID;                        // your network SSID (name), see communication.h
@@ -255,19 +250,19 @@ void loop() {
             delay(10000);
             digitalWrite(LED, LOW);
 
-        }
-        // error handeling noch ausarbeten
-        else {
-            Serial.println("Lichtschranke blockiert");    //error message
-            digitalWrite(LED, HIGH);
-            delay(200);
-            digitalWrite(LED, LOW);
-            digitalWrite(LED, HIGH);
-            delay(200);
-            digitalWrite(LED, LOW);
-            digitalWrite(LED, HIGH);
-            delay(200);
-            digitalWrite(LED, LOW);
-        }
     }
+    // error handling noch ausarbeten
+    else {
+      Serial.println("Lichtschranke blockiert");  //error message
+      digitalWrite(LED, HIGH);
+      delay(200);
+      digitalWrite(LED, LOW);
+      digitalWrite(LED, HIGH);
+      delay(200);
+      digitalWrite(LED, LOW);
+      digitalWrite(LED, HIGH);
+      delay(200);
+      digitalWrite(LED, LOW);
+    }
+  }
 }

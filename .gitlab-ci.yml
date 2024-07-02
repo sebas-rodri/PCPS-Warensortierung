@@ -36,6 +36,9 @@ build_nginx:
     - cd raspi-webserver
     - docker build -t $CI_REGISTRY_IMAGE/webserver:latest -f Dockerfile .
     - docker push $CI_REGISTRY_IMAGE/webserver:latest
+  only:
+    - develop
+    - main
 
 build_raspi:
   stage: build
@@ -43,3 +46,6 @@ build_raspi:
     - cd raspi-robot
     - docker build -t $CI_REGISTRY_IMAGE/robot:latest -f Dockerfile .
     - docker push $CI_REGISTRY_IMAGE/robot:latest
+  only:
+    - develop
+    - main

@@ -46,7 +46,7 @@ class Server:
 
                     # Receive and print data MSG_BYTES bytes at a time, as long as the client is sending something
                     while True:
-                        data = connection.recv(MSG_BYTES) # data is in bytes, has to be formatted to ascii
+                        data = connection.recv(MSG_BYTES)  # data is in bytes, has to be formatted to ascii
                         # print("Received data: {}".format(data))
                         self.deconstructData(data)
 
@@ -111,5 +111,5 @@ class Server:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    server = Server()
+    server = Server('0.0.0.0', 8000)
     server.run()

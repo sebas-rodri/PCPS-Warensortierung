@@ -88,5 +88,5 @@ class Server:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    server = Server('0.0.0.0', 2360)
+    server = Server('0.0.0.0', 8000)
     server.run()

@@ -14,7 +14,7 @@
 #define LED 10
 #define LASER 2
 #define BUTTON 7
-#define SENSITIVITY_LIGHT_BARRIER -100      // Sets the difference in voltage for the light barrier to trigger
+#define SENSITIVITY_LIGHT_BARRIER -100  // Sets the difference in voltage for the light barrier to trigger
 
 /*---- define pins for scale and initializes LoadCell ----*/
 const int HX711_dout = 6;  // mcu > HX711 dout pin
@@ -27,68 +27,91 @@ unsigned long t = 0;
 const float MAX_WEIGHT = 10000;  // maximal weight for the packages
 float THRESHOLD = 20;            // weight threshold for package sorting
 unsigned int NR_BOXES = 1;       // number of boxes
-int *boxes_array;                // array for storing the amount of packages
+int* boxes_array;                // array for storing the amount of packages
 int standard_lb = 0;             // Variable for the standard value of the light barrier
 int standard_lb_2 = 0;           // Variable for the standard value of the light barrier
 int full_box = -1;               // variable for the box status
 
 /*---- Initializing Variable for WIFI ----*/
-char ssid[] = SECRET_SSID;                        // your network SSID (name), see communication.h
-char pass[] = SECRET_PASS;                        // your network password (use for WPA, or use as key for WEP), see communication.h
-const char* TCP_SERVER_ADDR = IP_ADDRESS;         // see communication.h
+char ssid[] = SECRET_SSID;                 // your network SSID (name), see communication.h
+char pass[] = SECRET_PASS;                 // your network password (use for WPA, or use as key for WEP), see communication.h
+const char* TCP_SERVER_ADDR = IP_ADDRESS;  // see communication.h
 const int TCP_SERVER_PORT = PORT;
 
 WiFiClient TCP_client;
 
 /*____________________ Set-Up Functions ____________________*/
 
+
+
+/**
+ * assemble data to be send to raspberry pi into string according to specifications
+ *
+ * @return message to be send as string
+ */
+char* assembleData(char message, float weight) {
+  //conversion float to int
+  int weight_int = (int)weight;
+  //allocation for string
+  char* result = (char*)malloc(6 * sizeof(char));
+
+  //case if the weight is less then 3 digits
+  if (weight_int < 100) {
+    snprintf(result, 6, "%c/0%d", message, weight_int);
+  } else {
+    snprintf(result, 6, "%c/%d", message, weight_int);
+  }
+
+  return result;
+}
+
+
 /**
  * orderly shut down of the entire system and sending of error messages (only after wifi connection is set up)
  */
 void exitFunction(char error) {
-    // send error message to raspi
-    char* message = assembleData(error, 0.0);
-    sendData(message);
-    TCP_client.stop();
-    exit(0);
+  // send error message to raspi
+  char* message = assembleData(error, 0.0);
+  sendData(message);
+  TCP_client.stop();
+  exit(0);
 }
 
 /**
  * Set up for the WIFI uses predefined SSID and Password
  */
 int setUpWiFi() {
-    Serial.println("Arduino: TCP CLIENT");
+  Serial.println("Arduino: TCP CLIENT");
 
-    // check for the WiFi module:
-    if (WiFi.status() == WL_NO_MODULE) {
-      Serial.println("Communication with WiFi module failed!");
-      exit(0);                    // on error terminate program
-    }
+  // check for the WiFi module:
+  if (WiFi.status() == WL_NO_MODULE) {
+    Serial.println("Communication with WiFi module failed!");
+    exit(0);  // on error terminate program
+  }
 
-    /*String fv = WiFi.firmwareVersion();
+  /*String fv = WiFi.firmwareVersion();
     if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
         Serial.println("Please upgrade the firmware");
     }*/
 
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
-    // attempt to connect to WiFi network:
-    while (WiFi.begin(ssid) != WL_CONNECTED) {
-        delay(10000);  // wait 10 seconds for connection
-    }
+  Serial.print("Attempting to connect to SSID: ");
+  Serial.println(ssid);
+  // attempt to connect to WiFi network:
+  while (WiFi.begin(ssid) != WL_CONNECTED) {
+    delay(10000);  // wait 10 seconds for connection
+  }
 
-    Serial.print("Connected to WiFi ");
-    Serial.println(ssid);
+  Serial.print("Connected to WiFi ");
+  Serial.println(ssid);
 
-    // connect to TCP server
-    if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {
-        Serial.println("Connected to TCP server");
-        TCP_client.write("Hello!");  // send to TCP Server
-        TCP_client.flush();
-    }
-    else {
-        Serial.println("Failed to connect to TCP server");
-    }
+  // connect to TCP server
+  if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {
+    Serial.println("Connected to TCP server");
+    TCP_client.write("Hello!");  // send to TCP Server
+    TCP_client.flush();
+  } else {
+    Serial.println("Failed to connect to TCP server");
+  }
 }
 
 
@@ -96,35 +119,34 @@ int setUpWiFi() {
  * setup the scale for measurements
  */
 void startup_Scale() {
-    LoadCell.begin();
-    //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
-    float calibration_value;                                // calibration value (see example file "Calibration.ino")
-    calibration_value = 800;                                // uncomment to set the calibration value in the sketch
+  LoadCell.begin();
+  //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
+  float calibration_value;  // calibration value (see example file "Calibration.ino")
+  calibration_value = 800;  // uncomment to set the calibration value in the sketch
 
-    //#if defined(ESP8266) || defined(ESP32)
-    //    EEPROM.begin(512);                                      // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
-    //#endif
-    //    EEPROM.get(calVal_eeprom_address, calibration_value);   // fetch the calibration value from eeprom
+  //#if defined(ESP8266) || defined(ESP32)
+  //    EEPROM.begin(512);                                      // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
+  //#endif
+  //    EEPROM.get(calVal_eeprom_address, calibration_value);   // fetch the calibration value from eeprom
 
-    unsigned long stabilizing_time = 2000;                  // precision right after power-up can be improved by adding a few seconds of stabilizing time
-    boolean _tare = true;                                   // set false to skip tare in the next step
-    LoadCell.start(stabilizing_time, _tare);
-    if (LoadCell.getTareTimeoutFlag()) {
-        exitFunction('s');
-    }
-    else {
-        LoadCell.setCalFactor(calibration_value);           // set calibration value (float)
-        Serial.println("Startup is complete");
-    }
-
+  unsigned long stabilizing_time = 2000;  // precision right after power-up can be improved by adding a few seconds of stabilizing time
+  boolean _tare = true;                   // set false to skip tare in the next step
+  LoadCell.start(stabilizing_time, _tare);
+  if (LoadCell.getTareTimeoutFlag()) {
+    exitFunction('s');
+  } else {
+    LoadCell.setCalFactor(calibration_value);  // set calibration value (float)
+    Serial.println("Startup is complete");
+  }
+}
 
 /**
  * setup code to run once:
  */
 void setup() {
-    // Setup for testing with serial port(9600)
-    Serial.begin(9600);
-    Serial.print("test begin\n");
+  // Setup for testing with serial port(9600)
+  Serial.begin(9600);
+  Serial.print("test begin\n");
 
   /* initialize the sensors*/
   pinMode(BUTTON, INPUT);
@@ -136,15 +158,15 @@ void setup() {
   standard_lb_2 = analogRead(LIGHT_BARRIER_2);
   digitalWrite(LASER, HIGH);
 
-    /* start further necesseties */
-    setUpWiFi();
-    startup_Scale();
-    // init THRESHOLD with data received from raspi
+  /* start further necesseties */
+  setUpWiFi();
+  startup_Scale();
+  // init THRESHOLD with data received from raspi
 
-    /* visual output for Startup */
-    digitalWrite(LED, HIGH);
-    delay(5000);
-    digitalWrite(LED, LOW);
+  /* visual output for Startup */
+  digitalWrite(LED, HIGH);
+  delay(5000);
+  digitalWrite(LED, LOW);
 }
 
 
@@ -156,10 +178,10 @@ void setup() {
  * @returns weight of package
  */
 float scale() {
-    while (!LoadCell.update()) {}           // wait for scale output
-    float weight = LoadCell.getData();
-    //Serial.println(weight);               // test scale weight
-    return weight;
+  while (!LoadCell.update()) {}  // wait for scale output
+  float weight = LoadCell.getData();
+  //Serial.println(weight);               // test scale weight
+  return weight;
 }
 
 
@@ -186,28 +208,21 @@ int light_barrier() {
  * @returns number of box (1 or 2) or terminates program with error
  */
 char sorting() {
-    // ???
-    for (int i = 0; i <= 20; i++) {
-        Serial.println(scale());
-        delay(50);
-    }
+  // ???
+  for (int i = 0; i <= 20; i++) {
+    Serial.println(scale());
+    delay(50);
+  }
 
-    float weight = scale();   // figure out weight
+  float weight = scale();  // figure out weight
 
-    /* actual sorting */
-    if (weight < 0 || weight > MAX_WEIGHT) { exitFunction('w'); }   // error handling
-    if (weight < THRESHOLD) { return '1'; }                         // Box 1
-    return '2';                                                     // Box 2
+  /* actual sorting */
+  if (weight < 0 || weight > MAX_WEIGHT) { exitFunction('w'); }  // error handling
+  if (weight < THRESHOLD) { return '1'; }                        // Box 1
+  return '2';                                                    // Box 2
 }
 
-/**
- * assemble data to be send to raspberry pi into string according to specifications
- *
- * @return message to be send as string
- */
-char* assembleData(char message, float weight) {
-    return "no message";
-}
+
 
 
 /**
@@ -215,23 +230,23 @@ char* assembleData(char message, float weight) {
  * @param message is the message to send
  */
 void sendData(char* message) {
-    if (!TCP_client.connected()) {
-        Serial.println("Connection is disconnected");
-        TCP_client.stop();
+  if (!TCP_client.connected()) {
+    Serial.println("Connection is disconnected");
+    TCP_client.stop();
 
-        // reconnect to TCP server
-        if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {
-            Serial.println("Reconnected to TCP server");
-            TCP_client.write("Hello!");  // send to TCP Server
-            TCP_client.flush();
-        } else {
-            Serial.println("Failed to reconnect to TCP server");
-            delay(1000);
-        }
+    // reconnect to TCP server
+    if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {
+      Serial.println("Reconnected to TCP server");
+      TCP_client.write("Hello!");  // send to TCP Server
+      TCP_client.flush();
+    } else {
+      Serial.println("Failed to reconnect to TCP server");
+      delay(1000);
     }
+  }
 
-    TCP_client.write(message);  // send to TCP Server
-    TCP_client.flush();
+  TCP_client.write(message);  // send to TCP Server
+  TCP_client.flush();
 }
 
 
@@ -240,29 +255,30 @@ void sendData(char* message) {
  */
 void loop() {
 
-        // checks the light barrier and exits the function if triggered
-        if (light_barrier() == -1) {
-            //Serial.println(sorting());
-            char* message = assembleData(sorting(), scale());   // assemble string to send to raspberry pi
-            sendData(message);
-            digitalWrite(LED, HIGH);                  // signal for sending
 
-            delay(10000);
-            digitalWrite(LED, LOW);
 
-    }
-    // error handling noch ausarbeten
-    else {
-      Serial.println("Lichtschranke blockiert");  //error message
-      digitalWrite(LED, HIGH);
-      delay(200);
-      digitalWrite(LED, LOW);
-      digitalWrite(LED, HIGH);
-      delay(200);
-      digitalWrite(LED, LOW);
-      digitalWrite(LED, HIGH);
-      delay(200);
-      digitalWrite(LED, LOW);
-    }
+  // checks the light barrier and exits the function if triggered
+  if (light_barrier() == -1) {
+    //Serial.println(sorting());
+    char* message = assembleData(sorting(), scale());  // assemble string to send to raspberry pi
+    sendData(message);
+    digitalWrite(LED, HIGH);  // signal for sending
+
+    delay(10000);
+    digitalWrite(LED, LOW);
+
+  }
+  // error handling noch ausarbeten
+  else {
+    Serial.println("Lichtschranke blockiert");  //error message
+    digitalWrite(LED, HIGH);
+    delay(200);
+    digitalWrite(LED, LOW);
+    digitalWrite(LED, HIGH);
+    delay(200);
+    digitalWrite(LED, LOW);
+    digitalWrite(LED, HIGH);
+    delay(200);
+    digitalWrite(LED, LOW);
   }
 }

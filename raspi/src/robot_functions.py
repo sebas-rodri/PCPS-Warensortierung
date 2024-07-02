@@ -82,24 +82,23 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         """
         return self.get_status()
 
-      def get_packeg(self) -> None;
+    def get_package(self) -> None:
         """
         Picks up item from the input_Box and moves item to the scale.
 
         :return: None
         """
 
-        #Move to Input Box
-        self.set_tool_pose(POSITION_INPUT_BOX[0];POSITION_INPUT_BOX[1],POSITION_INPUT_BOX[2] + 100)
-        self.set_tool_pose(POSITION_INPUT_BOX[0];POSITION_INPUT_BOX[1],POSITION_INPUT_BOX[2])
-        #Pickup Box
-        self.pump_suction();
-        #Move Up
-        self.set_tool_pose(POSITION_INPUT_BOX[0];POSITION_INPUT_BOX[1],POSITION_INPUT_BOX[2] + 100)
-        #Move to scale
+        # Move to Input Box
+        self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2] + 100)
+        self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2])
+        # Pickup Box
+        self.pump_suction()
+        # Move Up
+        self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2] + 100)
+        # Move to scale
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)
         self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
-        #Releas Item
+        # Release Item
         self.pump_blowing()
         self.pump_off()
-

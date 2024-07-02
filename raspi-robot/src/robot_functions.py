@@ -3,7 +3,8 @@ import wlkata_mirobot
 
 POSITION_SCALE = (70, -230, 50)
 POSITION_BOX_1 = (50, 240, 100)
-POSITION_BOX_2 = (-150, 240, 100)
+POSITION_BOX_2 = (-55, 210, 40)
+POSITION_INPUT_BOX = (200, -150, 20)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):
@@ -30,6 +31,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         :return: None
         """
         self.go_to_zero()
+
 
     def itemToBoxOne(self) -> None:
         """
@@ -85,3 +87,24 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         :return: The status of the robot.
         """
         return self.get_status()
+
+    def get_package(self) -> None:
+        """
+        Picks up item from the input_Box and moves item to the scale.
+
+        :return: None
+        """
+
+        # Move to Input Box
+        self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2] + 100)
+        self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2])
+        # Pickup Box
+        self.pump_suction()
+        # Move Up
+        self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2] + 100)
+        # Move to scale
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2])
+        # Release Item
+        self.pump_blowing()
+        self.pump_off()

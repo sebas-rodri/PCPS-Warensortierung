@@ -10,7 +10,7 @@
 #define BUCKET_ONE    (byte)1
 #define BUCKET_TWO    (byte)2
 #define PORT          2360
-#define IP_ADDRESS    "192.168.1.107"
+#define IP_ADDRESS    "192.168.1.147"
 
 
 int setUpWiFi();

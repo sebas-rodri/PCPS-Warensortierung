@@ -185,7 +185,7 @@ class DatabaseManager:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    db_manager = DatabaseManager('raspi-webserver/src/db/database.db')
+    db_manager = DatabaseManager('raspi-frontend/src/db/database.db')
 
     # Insert random data
     additional_data = [

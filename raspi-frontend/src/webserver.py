@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import threading
+import logging
 import time
 from session import Session
 import socket
@@ -73,34 +74,56 @@ def test_thread():
         elif command == 'q':
             break
 
-def handle_data(data):
-    #TODO: Implemented full functionality
-    # -> weight auch übergeben
-    if data == b'box1':
-        increment('box1')
-    elif data == b'box2':
-        increment('box2')
-    elif data == b'full':
-        box1full()
-    elif data == b'empty':
-        box1empty()
+
+def handle_request(self, message):
+    logging.info(f"Received message: {message}")
+
+    if len(message) < 5 or message[1] != '/':
+        logging.error("Invalid message format")
+        return "ERROR: Invalid message format"
+
+    command = int(message[0])
+    weight = int(message[2:5])
+
+    if command == 0:
+        logging.info("Neutral position - no action taken")
+        return "OK: Neutral position"
+
+    elif command == 1:
+        logging.info(f"Package sorted to box 1 with weight {weight}")
+        return f"OK: Package sorted to box 1 with weight {weight}"
+
+    elif command == 2:
+        logging.info(f"Package sorted to box 2 with weight {weight}")
+        return f"OK: Package sorted to box 2 with weight {weight}"
+
+    elif command == 3:
+        # Implement fetching package logic if necessary
+        logging.info(f"Fetching package information")
+        return "OK: Package fetched (dummy response)"
+
+    else:
+        logging.error("Unknown command")
+        return "ERROR: Unknown command"
+
 
 def listener_thread():
-        print('Listener thread')
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('0.0.0.0', 5001))
-            s.listen()
-            print('Listening on port 5001')
-            while True:
-                time.sleep(1)
-                client, addr = s.accept()
-                with client:
-                    print('Connected by', addr)
-                    while True:
-                        data = client.recv(1024)
-                        if not data:
-                            break
-                        handle_data(data)          
+    print('Listener thread')
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('0.0.0.0', 5001))
+        s.listen()
+        print('Listening on port 5001')
+        while True:
+            time.sleep(1)
+            client, addr = s.accept()
+            with client:
+                print('Connected by', addr)
+                while True:
+                    data = client.recv(1024)
+                    if not data:
+                        break
+                    handle_data(data)
+
 
 if __name__ == '__main__':
     activeSession = Session()

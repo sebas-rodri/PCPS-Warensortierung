@@ -74,45 +74,45 @@ class PackageSortingServer:
             logging.info(f"Package sorted to bucket 1 with weight {weight}")
             self.db_manager.set(weight, 1)
             self.send_message('1/000', 'localhost', 8001)
-            self.send_message('9/000', 'localhost', 4999)
+            self.send_message('9/000', 'localhost', 5001)
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
             logging.info(f"Package sorted to bucket 2 with weight {weight}")
             self.db_manager.set(weight, 2)
             self.send_message('2/000', 'localhost', 8001)
-            self.send_message('9/000', 'localhost', 4999)
+            self.send_message('9/000', 'localhost', 5001)
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         # Handling error messages
         elif command_char == MALLOC:
             logging.error("Malloc error: failed to allocate memory for boxes array")
-            self.send_message('m/000', 'localhost', 4999)
+            self.send_message('m/000', 'localhost', 5001)
             return "ERROR: Malloc error"
 
         elif command_char == SCALE:
             logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
-            self.send_message('s/000', 'localhost', 4999)
+            self.send_message('s/000', 'localhost', 5001)
             return "ERROR: Scale error"
 
         elif command_char == WEIGHT:
             logging.error("Weight error: package weighs too little or too much")
-            self.send_message('w/000', 'localhost', 4999)
+            self.send_message('w/000', 'localhost', 5001)
             return "ERROR: Weight error"
 
         elif command_char == LIGHT:
             logging.error("Light barrier error: the light barrier was triggered")
-            self.send_message('l/000', 'localhost', 4999)
+            self.send_message('l/000', 'localhost', 5001)
             return "ERROR: Light barrier error"
 
         elif command_char == WIFI:
             logging.error("WiFi error: communication with WiFi module failed")
-            self.send_message('i/000', 'localhost', 4999)
+            self.send_message('i/000', 'localhost', 5001)
             return "ERROR: WiFi error"
 
         elif command_char == TCP:
             logging.error("TCP error: failed to connect to TCP server")
-            self.send_message('t/000', 'localhost', 4999)
+            self.send_message('t/000', 'localhost', 5001)
             return "ERROR: TCP error"
 
         else:

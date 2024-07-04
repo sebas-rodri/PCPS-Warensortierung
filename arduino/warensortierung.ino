@@ -42,10 +42,8 @@ WiFiClient TCP_client;
 
 /*____________________ Set-Up Functions ____________________*/
 
-
-
 /**
- * assemble data to be send to raspberry pi into string according to specifications
+ * Assemble data to be send to raspberry pi into string according to specifications
  *
  * @return message to be send as string
  */
@@ -273,8 +271,6 @@ char* recvData() {
  * main code to run repeatedly:
  */
 void loop() {
-
-
 
   // checks the light barrier and exits the function if triggered
   if (light_barrier() == -1) {

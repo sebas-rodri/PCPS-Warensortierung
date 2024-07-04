@@ -4,11 +4,11 @@ from arduino_commands import *
 from robot_functions import Robot
 from database import DatabaseManager
 
-RASPI_IP = '0.0.0.0'
+RASPI_IP = '192.168.1.145'
 RASPI_PORT = 2360
-ARDUINO_IP = ''
-ARDUINO_PORT = 0
-MSG_BYTES = 0
+ARDUINO_IP = '192.168.1.133'
+ARDUINO_PORT = 80
+MSG_BYTES = 6
 
 class Server:
     """
@@ -28,10 +28,10 @@ class Server:
         self.tcp_socket.listen(2)
         logging.info(f"Server listening on {RASPI_IP}:{RASPI_PORT}")
 
-        self.robot = Robot()
-        self.db_manager = DatabaseManager('raspi/src/database.db')
+        # self.robot = Robot()
+        # self.db_manager = DatabaseManager('raspi/src/database.db')
 
-    def run(self) -> None:
+    def listen(self) -> None:
         """
         Listens for incoming connections, then forwards them to the handler.
         :return: 1
@@ -47,8 +47,8 @@ class Server:
                     # Receive and print data MSG_BYTES bytes at a time, as long as the client is sending something
                     while True:
                         data = connection.recv(MSG_BYTES)  # data is in bytes, has to be formatted to ascii
-                        # print("Received data: {}".format(data))
-                        self.deconstructData(data)
+                        print("Received data: {}".format(data))
+                        # self.deconstructData(data)
 
                         if not data:
                             break
@@ -56,7 +56,7 @@ class Server:
                 finally:
                     connection.close()
         finally:
-            self.db_manager.close()
+            # self.db_manager.close()
             logging.debug("Server shut down and database closed")
 
     """
@@ -97,8 +97,9 @@ class Server:
     send Data to arduino server
     """
     def sendData(self, message: str) -> None:
-        # Create a connection to the server application on port 81
-        tcp_socket = socket.create_connection(('localhost', 81))
+        socket.setdefaulttimeout(10)
+        # Create a connection to the server application on port
+        tcp_socket = socket.create_connection((ARDUINO_IP, ARDUINO_PORT))
 
         try:
             data = str.encode(message)
@@ -111,5 +112,7 @@ class Server:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    server = Server('0.0.0.0', 8000)
-    server.run()
+    server = Server()
+
+    server.sendData("1/123")
+    # server.listen()

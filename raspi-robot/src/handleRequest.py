@@ -34,6 +34,7 @@ class Server:
                     data = conn.recv(1024)
                     if data:
                         response = self.handle_request(data.decode('utf-8'))
+                        self.relayCommand(data, )
                         conn.sendall(response.encode('utf-8'))
 
     def handle_request(self, message):
@@ -94,6 +95,23 @@ class Server:
         else:
             logging.error("Unknown command")
             return "ERROR: Unknown command"
+
+    def relayCommand(self, message, server_address=('localhost', 5001)) -> None:
+        """
+        Relay a command by sending a message to a server at the specified address.
+
+        :param message: The message to send to the server.
+        :param server_address: The address of the server to connect to. Defaults to ('localhost', 5001).
+        :type server_address: Tuple[str, int]
+        :return: None
+        :rtype: None
+        """
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            # Send message to server
+            s.connect(server_address)
+            s.sendall(message.encode())
+            logging.debug(f"Relay command sent to {server_address}")
+
 
     def send_message(self, message, host, port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

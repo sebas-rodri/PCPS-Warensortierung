@@ -37,6 +37,29 @@ class Server:
                         self.relayCommand(data, )
                         conn.sendall(response.encode('utf-8'))
 
+    def send_message(self, message, host, port):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((host, port))
+            s.sendall(message.encode('utf-8'))
+            response = s.recv(1024)
+            print('Received', response.decode('utf-8'))
+
+    def relayCommand(self, message, server_address=('localhost', 5001)) -> None:
+        """
+        Relay a command by sending a message to a server at the specified address.
+
+        :param message: The message to send to the server.
+        :param server_address: The address of the server to connect to. Defaults to ('localhost', 5001).
+        :type server_address: Tuple[str, int]
+        :return: None
+        :rtype: None
+        """
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            # Send message to server
+            s.connect(server_address)
+            s.sendall(message.encode())
+            logging.debug(f"Relay command sent to {server_address}")
+
     def handle_request(self, message):
         logging.info(f"Received message: {message}")
 
@@ -96,29 +119,6 @@ class Server:
             logging.error("Unknown command")
             return "ERROR: Unknown command"
 
-    def relayCommand(self, message, server_address=('localhost', 5001)) -> None:
-        """
-        Relay a command by sending a message to a server at the specified address.
-
-        :param message: The message to send to the server.
-        :param server_address: The address of the server to connect to. Defaults to ('localhost', 5001).
-        :type server_address: Tuple[str, int]
-        :return: None
-        :rtype: None
-        """
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # Send message to server
-            s.connect(server_address)
-            s.sendall(message.encode())
-            logging.debug(f"Relay command sent to {server_address}")
-
-
-    def send_message(self, message, host, port):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((host, port))
-            s.sendall(message.encode('utf-8'))
-            response = s.recv(1024)
-            print('Received', response.decode('utf-8'))
 
     @staticmethod
     def getLocalIP():

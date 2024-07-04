@@ -251,6 +251,25 @@ void sendData(char* message) {
 
 
 /**
+ * write data received from RaspberryPi to message string
+ *
+ * @return message as string received from RaspberryPi
+ */
+char* recvData() {
+    int MSG_LENGTH = 5;
+    char* message = new char[MSG_LENGTH];
+    for(int i = 0; i < MSG_LENGTH; i++){
+        if (TCP_client.available()) {
+            char c = TCP_client.read();
+            message[i] = c;
+        }
+        else { break; } // error handling?
+    }
+    return message;
+}
+
+
+/**
  * main code to run repeatedly:
  */
 void loop() {

@@ -50,6 +50,10 @@ class PackageSortingServer:
     def handle_request(self, message):
         logging.info(f"Received message: {message}")
 
+        if message == 'get_data':
+            raise NotImplementedError("get_data not implemented")
+            # TODO SEND DATA FROM DATABASE
+
         if len(message) < 5 or message[1] != '/':
             logging.error("Invalid message format")
             return "ERROR: Invalid message format"

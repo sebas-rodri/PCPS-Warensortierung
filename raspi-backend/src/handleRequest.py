@@ -66,19 +66,22 @@ class PackageSortingServer:
             return "ERROR: Invalid command or weight"
 
         if command == RESET:
-            logging.info("Reset command received - no action taken")
+            logging.info("Reset command received - relayed and no action taken")
+            self.send_message('0/000', 'localhost', 8001)
             return "OK: Reset command"
 
         elif command == BUCKET_ONE:
             logging.info(f"Package sorted to bucket 1 with weight {weight}")
             self.db_manager.set(weight, 1)
-            self.send_message(f'1/{weight}', 'localhost', 4999)
+            self.send_message('1/000', 'localhost', 8001)
+            self.send_message('9/000', 'localhost', 4999)
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
             logging.info(f"Package sorted to bucket 2 with weight {weight}")
             self.db_manager.set(weight, 2)
-            self.send_message(f'2/{weight}', 'localhost', 4999)
+            self.send_message('2/000', 'localhost', 8001)
+            self.send_message('9/000', 'localhost', 4999)
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         # Handling error messages

@@ -32,12 +32,7 @@ class Server:
                     logging.info(f"Connected by {addr}")
                     data = conn.recv(1024)
                     if data:
-                        # TODO REMOVE
-                        try:
-                            response = self.handle_request(data.decode('utf-8'))
-                        except Exception as e:
-                            pass
-                        self.relayCommand(data, 'localhost')
+                        response = self.handle_request(data.decode('utf-8'))
                         conn.sendall(response.encode('utf-8'))
 
     def send_message(self, message, host, port):
@@ -48,22 +43,6 @@ class Server:
             s.sendall(message)
             response = s.recv(1024)
             print('Received', response.decode('utf-8'))
-
-    def relayCommand(self, message, host='localhost', port=5001) -> None:
-        """
-        Relay a command by sending a message to a server at the specified address.
-
-        :param message: The message to send to the server.
-        :param server_address: The address of the server to connect to. Defaults to ('localhost', 5001).
-        :type server_address: Tuple[str, int]
-        :return: None
-        :rtype: None
-        """
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # Send message to server
-            s.connect((host, port))
-            s.sendall(message)
-            logging.debug(f"Relay command sent to {host}:{port}")
 
     def handle_request(self, message):
         logging.info(f"Received message: {message}")
@@ -85,17 +64,17 @@ class Server:
 
         if command == RESET:
             logging.info("Reset command received - Robot will now reset")
-            self.robot.reset()
+            #self.robot.reset()
             return "OK: Reset command"
 
         elif command == BUCKET_ONE:
             logging.info(f"Package sorted to bucket 1 with weight {weight}")
-            self.robot.itemToBoxOne()
+            #self.robot.itemToBoxOne()
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
             logging.info(f"Package sorted to bucket 2 with weight {weight}")
-            self.robot.itemToBoxTwo()
+            #self.robot.itemToBoxTwo()
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         # Handling error messages

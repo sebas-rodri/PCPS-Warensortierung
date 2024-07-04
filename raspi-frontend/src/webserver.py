@@ -14,6 +14,7 @@ socketio = SocketIO(app, async_mode='threading')
 RESET = 0
 BUCKET_ONE = 1
 BUCKET_TWO = 2
+UPDATED_DATABASE = 9
 
 # Error messages
 MALLOC = 'm'  # malloc error
@@ -72,21 +73,6 @@ def handle_get_counter_value():
     socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
 
 
-def test_thread():
-    while True:
-        time.sleep(1)
-        command = input('Enter command: ')
-        if command == '1':
-            increment('box1')
-        elif command == '2':
-            increment('box2')
-        elif command == 'full':
-            box1full()
-        elif command == 'empty':
-            box1empty()
-        elif command == 'q':
-            break
-
 def handle_request(message):
     logging.info(f"Received message: {message}")
 
@@ -105,19 +91,9 @@ def handle_request(message):
         logging.error(f"Invalid command or weight: {command_char}, {message[2:5]}")
         return "ERROR: Invalid command or weight"
 
-    if command == RESET:
-        logging.info("Reset command received - no action taken")
-        return "OK: Reset command"
-
-    elif command == BUCKET_ONE:
-        logging.info(f"Package sorted to bucket 1 with weight {weight}")
-        increment('box1')
-        return f"OK: Package sorted to bucket 1 with weight {weight}"
-
-    elif command == BUCKET_TWO:
-        logging.info(f"Package sorted to bucket 2 with weight {weight}")
-        increment('box2')
-        return f"OK: Package sorted to bucket 2 with weight {weight}"
+    if command == UPDATED_DATABASE:
+        pass
+        # TODO GET NEW DATA FROM DATABASE
 
     # Handling error messages
     elif command_char == MALLOC:
@@ -168,6 +144,6 @@ def start_server():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     activeSession = Session()
-    thread = threading.Thread(target=start_server())
+    thread = threading.Thread(target=start_server)
     thread.start()
     socketio.run(app, debug=False, host='localhost', port=4999, allow_unsafe_werkzeug=True)

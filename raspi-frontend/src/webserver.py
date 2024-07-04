@@ -10,6 +10,19 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode='threading')
 
 
+# Immutable command variables
+RESET = 0
+BUCKET_ONE = 1
+BUCKET_TWO = 2
+
+# Error messages
+MALLOC = 'm'  # malloc error
+SCALE = 's'   # scale error
+WEIGHT = 'w'  # weighting error
+LIGHT = 'l'   # light barrier error
+WIFI = 'i'    # internet error
+TCP = 't'     # server error
+
 
 @app.route('/')
 def index():
@@ -74,59 +87,86 @@ def test_thread():
         elif command == 'q':
             break
 
-
-def handle_request(self, message):
+def handle_request(message):
     logging.info(f"Received message: {message}")
 
     if len(message) < 5 or message[1] != '/':
         logging.error("Invalid message format")
         return "ERROR: Invalid message format"
 
-    command = int(message[0])
-    weight = int(message[2:5])
+    command_char = message[0]
+    command = None
+    weight = None
 
-    if command == 0:
-        logging.info("Neutral position - no action taken")
-        return "OK: Neutral position"
+    try:
+        command = int(command_char)
+        weight = int(message[2:5])
+    except ValueError:
+        logging.error(f"Invalid command or weight: {command_char}, {message[2:5]}")
+        return "ERROR: Invalid command or weight"
 
-    elif command == 1:
-        logging.info(f"Package sorted to box 1 with weight {weight}")
-        return f"OK: Package sorted to box 1 with weight {weight}"
+    if command == RESET:
+        logging.info("Reset command received - no action taken")
+        return "OK: Reset command"
 
-    elif command == 2:
-        logging.info(f"Package sorted to box 2 with weight {weight}")
-        return f"OK: Package sorted to box 2 with weight {weight}"
+    elif command == BUCKET_ONE:
+        logging.info(f"Package sorted to bucket 1 with weight {weight}")
+        increment('box1')
+        return f"OK: Package sorted to bucket 1 with weight {weight}"
 
-    elif command == 3:
-        # Implement fetching package logic if necessary
-        logging.info(f"Fetching package information")
-        return "OK: Package fetched (dummy response)"
+    elif command == BUCKET_TWO:
+        logging.info(f"Package sorted to bucket 2 with weight {weight}")
+        increment('box2')
+        return f"OK: Package sorted to bucket 2 with weight {weight}"
+
+    # Handling error messages
+    elif command_char == MALLOC:
+        logging.error("Malloc error: failed to allocate memory for boxes array")
+        return "ERROR: Malloc error"
+
+    elif command_char == SCALE:
+        logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
+        return "ERROR: Scale error"
+
+    elif command_char == WEIGHT:
+        logging.error("Weight error: package weights too little or too much")
+        return "ERROR: Weight error"
+
+    elif command_char == LIGHT:
+        logging.error("Light barrier error: the light barrier was triggered")
+        return "ERROR: Light barrier error"
+
+    elif command_char == WIFI:
+        logging.error("WiFi error: communication with WiFi module failed")
+        return "ERROR: WiFi error"
+
+    elif command_char == TCP:
+        logging.error("TCP error: failed to connect to TCP server")
+        return "ERROR: TCP error"
 
     else:
         logging.error("Unknown command")
         return "ERROR: Unknown command"
 
 
-def listener_thread():
-    print('Listener thread')
+def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('0.0.0.0', 5001))
+        s.bind(('localhost', 5001))
         s.listen()
-        print('Listening on port 5001')
+        logging.info(f"Server started and listening on localhost:8001")
+
         while True:
-            time.sleep(1)
-            client, addr = s.accept()
-            with client:
-                print('Connected by', addr)
-                while True:
-                    data = client.recv(1024)
-                    if not data:
-                        break
-                    handle_data(data)
+            conn, addr = s.accept()
+            with conn:
+                logging.info(f"Connected by {addr}")
+                data = conn.recv(1024)
+                if data:
+                    response = handle_request(data.decode('utf-8'))
+                    conn.sendall(response.encode('utf-8'))
 
 
 if __name__ == '__main__':
     activeSession = Session()
-    thread = threading.Thread(target=listener_thread)
+    thread = threading.Thread(target=start_server())
     thread.start()
     socketio.run(app, debug=False, host='0.0.0.0', port=4999, allow_unsafe_werkzeug=True)

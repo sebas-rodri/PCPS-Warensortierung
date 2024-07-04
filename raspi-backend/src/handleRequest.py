@@ -3,6 +3,19 @@ import socket
 
 from database import DatabaseManager
 
+# Immutable command variables
+RESET = 0
+BUCKET_ONE = 1
+BUCKET_TWO = 2
+
+# Error messages
+MALLOC = 'm'  # malloc error
+SCALE = 's'   # scale error
+WEIGHT = 'w'  # weighting error
+LIGHT = 'l'   # light barrier error
+WIFI = 'i'    # internet error
+TCP = 't'     # server error
+
 
 class PackageSortingServer:
     def __init__(self, host='localhost', port=8000):
@@ -32,27 +45,55 @@ class PackageSortingServer:
             logging.error("Invalid message format")
             return "ERROR: Invalid message format"
 
-        command = int(message[0])
-        weight = int(message[2:5])
+        command_char = message[0]
+        command = None
+        weight = None
 
-        if command == 0:
-            logging.info("Neutral position - no action taken")
-            return "OK: Neutral position"
+        try:
+            command = int(command_char)
+            weight = int(message[2:5])
+        except ValueError:
+            logging.error(f"Invalid command or weight: {command_char}, {message[2:5]}")
+            return "ERROR: Invalid command or weight"
 
-        elif command == 1:
+        if command == RESET:
+            logging.info("Reset command received - no action taken")
+            return "OK: Reset command"
+
+        elif command == BUCKET_ONE:
+            logging.info(f"Package sorted to bucket 1 with weight {weight}")
             self.db_manager.set(weight, 1)
-            logging.info(f"Package sorted to box 1 with weight {weight}")
-            return f"OK: Package sorted to box 1 with weight {weight}"
+            return f"OK: Package sorted to bucket 1 with weight {weight}"
 
-        elif command == 2:
+        elif command == BUCKET_TWO:
+            logging.info(f"Package sorted to bucket 2 with weight {weight}")
             self.db_manager.set(weight, 2)
-            logging.info(f"Package sorted to box 2 with weight {weight}")
-            return f"OK: Package sorted to box 2 with weight {weight}"
+            return f"OK: Package sorted to bucket 2 with weight {weight}"
 
-        elif command == 3:
-            # Implement fetching package logic if necessary
-            logging.info(f"Fetching package information")
-            return "OK: Package fetched (dummy response)"
+        # Handling error messages
+        elif command_char == MALLOC:
+            logging.error("Malloc error: failed to allocate memory for boxes array")
+            return "ERROR: Malloc error"
+
+        elif command_char == SCALE:
+            logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
+            return "ERROR: Scale error"
+
+        elif command_char == WEIGHT:
+            logging.error("Weight error: package weighs too little or too much")
+            return "ERROR: Weight error"
+
+        elif command_char == LIGHT:
+            logging.error("Light barrier error: the light barrier was triggered")
+            return "ERROR: Light barrier error"
+
+        elif command_char == WIFI:
+            logging.error("WiFi error: communication with WiFi module failed")
+            return "ERROR: WiFi error"
+
+        elif command_char == TCP:
+            logging.error("TCP error: failed to connect to TCP server")
+            return "ERROR: TCP error"
 
         else:
             logging.error("Unknown command")

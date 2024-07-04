@@ -2,7 +2,7 @@ import socket
 import logging
 from arduino_commands import *
 from robot_functions import Robot
-from database import DatabaseManager
+
 
 class Server:
     """
@@ -11,59 +11,96 @@ class Server:
     :param host: The host address to bind the server to.
     :param port: The port to bind the server to.
     """
+
     def __init__(self, host, port) -> None:
         """
         Starts the server and initializes connection with robot.
         """
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server_socket.bind((host, port))  # Bind to the port
-        logging.info(f"Server listening on {host}:{port}")
+        self.host = host
+        self.port = port
 
         self.robot = Robot()
-        self.db_manager = DatabaseManager('raspi/src/database.db')
 
-    def run(self) -> None:
-        """
-        Listens for incoming connections, then forwards them to the handler.
-        :return: 1
-        """
-        try:
+    def start_server(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((self.host, self.port))
+            s.listen()
+            logging.info(f"Server started and listening on {self.host}:{self.port}")
+
             while True:
-                try:
-                    # Receive 1 byte, bcs we know the command is 1 byte
-                    command, client_address = self.server_socket.recvfrom(1)
-                    if command:
-                        logging.debug(f"Client address: {client_address}")
-                        # Decode the byte string
-                        self.handleCommand(command[0])
-                except Exception as e:
-                    logging.exception(e)
-        finally:
-            self.db_manager.close()
-            logging.debug("Server shut down and database closed")
+                conn, addr = s.accept()
+                with conn:
+                    logging.info(f"Connected by {addr}")
+                    data = conn.recv(1024)
+                    if data:
+                        response = self.handle_request(data.decode('utf-8'))
+                        conn.sendall(response.encode('utf-8'))
 
-    def handleCommand(self, command: int) -> None:
-        """
-        Handles the given command.
+    def handle_request(self, message):
+        logging.info(f"Received message: {message}")
 
-        :param command: The command to be handled.
-        :return: None
-        """
+        if len(message) < 5 or message[1] != '/':
+            logging.error("Invalid message format")
+            return "ERROR: Invalid message format"
+
+        command_char = message[0]
+        command = None
+        weight = None
+
+        try:
+            command = int(command_char)
+            weight = int(message[2:5])
+        except ValueError:
+            logging.error(f"Invalid command or weight: {command_char}, {message[2:5]}")
+            return "ERROR: Invalid command or weight"
+
         if command == RESET:
-            logging.info(f"Reset command received")
-            self.robot.reset()
+            logging.info("Reset command received - no action taken")
+            return "OK: Reset command"
+
         elif command == BUCKET_ONE:
-            logging.info(f"Bucket one command received")
-            self.robot.itemToBoxOne()
-            weight_of_packet = 100 # tbd
-            self.db_manager.set(weight_of_packet, 1)
+            logging.info(f"Package sorted to bucket 1 with weight {weight}")
+            return f"OK: Package sorted to bucket 1 with weight {weight}"
+
         elif command == BUCKET_TWO:
-            logging.info(f"Bucket two command received")
-            self.robot.itemToBoxTwo()
-            weight_of_packet = 100 # tbd
-            self.db_manager.set(weight_of_packet, 2)
+            logging.info(f"Package sorted to bucket 2 with weight {weight}")
+            return f"OK: Package sorted to bucket 2 with weight {weight}"
+
+        # Handling error messages
+        elif command_char == MALLOC:
+            logging.error("Malloc error: failed to allocate memory for boxes array")
+            return "ERROR: Malloc error"
+
+        elif command_char == SCALE:
+            logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
+            return "ERROR: Scale error"
+
+        elif command_char == WEIGHT:
+            logging.error("Weight error: package weights too little or too much")
+            return "ERROR: Weight error"
+
+        elif command_char == LIGHT:
+            logging.error("Light barrier error: the light barrier was triggered")
+            return "ERROR: Light barrier error"
+
+        elif command_char == WIFI:
+            logging.error("WiFi error: communication with WiFi module failed")
+            return "ERROR: WiFi error"
+
+        elif command_char == TCP:
+            logging.error("TCP error: failed to connect to TCP server")
+            return "ERROR: TCP error"
+
         else:
-            logging.error("Invalid command")
+            logging.error("Unknown command")
+            return "ERROR: Unknown command"
+
+    def send_message(self, message, host, port):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((host, port))
+            s.sendall(message.encode('utf-8'))
+            response = s.recv(1024)
+            print('Received', response.decode('utf-8'))
 
     @staticmethod
     def getLocalIP():
@@ -89,4 +126,4 @@ class Server:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     server = Server('0.0.0.0', 8000)
-    server.run()
+    server.start_server()

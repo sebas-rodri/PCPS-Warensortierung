@@ -87,26 +87,32 @@ class PackageSortingServer:
         # Handling error messages
         elif command_char == MALLOC:
             logging.error("Malloc error: failed to allocate memory for boxes array")
+            self.send_message('m/000', 'localhost', 4999)
             return "ERROR: Malloc error"
 
         elif command_char == SCALE:
             logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
+            self.send_message('s/000', 'localhost', 4999)
             return "ERROR: Scale error"
 
         elif command_char == WEIGHT:
             logging.error("Weight error: package weighs too little or too much")
+            self.send_message('w/000', 'localhost', 4999)
             return "ERROR: Weight error"
 
         elif command_char == LIGHT:
             logging.error("Light barrier error: the light barrier was triggered")
+            self.send_message('l/000', 'localhost', 4999)
             return "ERROR: Light barrier error"
 
         elif command_char == WIFI:
             logging.error("WiFi error: communication with WiFi module failed")
+            self.send_message('i/000', 'localhost', 4999)
             return "ERROR: WiFi error"
 
         elif command_char == TCP:
             logging.error("TCP error: failed to connect to TCP server")
+            self.send_message('t/000', 'localhost', 4999)
             return "ERROR: TCP error"
 
         else:

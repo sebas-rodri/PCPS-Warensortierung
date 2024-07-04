@@ -1,4 +1,4 @@
-# raspi-robot/Dockerfile
+# raspi-frontend/Dockerfile
 FROM python:3.9-slim
 
 # Set the working directory
@@ -12,7 +12,8 @@ COPY ./requirements.txt /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose necessary ports
-EXPOSE 8001
+EXPOSE 4999
+EXPOSE 5001
 
 # Run the Python application
-CMD ["python", "/app/src/handleRequest.py"]
+CMD ["python", "/app/src/webserver.py"]

@@ -1,4 +1,4 @@
-# raspi-robot/Dockerfile
+# raspi-backend/Dockerfile
 FROM python:3.9-slim
 
 # Set the working directory
@@ -6,13 +6,9 @@ WORKDIR /app
 
 # Copy the source code
 COPY ./src /app/src
-COPY ./requirements.txt /app
-
-# Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose necessary ports
-EXPOSE 8001
+EXPOSE 8000
 
 # Run the Python application
 CMD ["python", "/app/src/handleRequest.py"]

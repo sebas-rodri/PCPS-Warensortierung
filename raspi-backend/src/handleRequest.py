@@ -38,6 +38,15 @@ class PackageSortingServer:
                         response = self.handle_request(data.decode('utf-8'))
                         conn.sendall(response.encode('utf-8'))
 
+    def send_message(self, message, host, port):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((host, port))
+            if not isinstance(message, bytes):
+                message = message.encode('utf-8')
+            s.sendall(message)
+            response = s.recv(1024)
+            print('Received', response.decode('utf-8'))
+
     def handle_request(self, message):
         logging.info(f"Received message: {message}")
 
@@ -63,11 +72,13 @@ class PackageSortingServer:
         elif command == BUCKET_ONE:
             logging.info(f"Package sorted to bucket 1 with weight {weight}")
             self.db_manager.set(weight, 1)
+            self.send_message(f'1/{weight}', 'localhost', 4999)
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
             logging.info(f"Package sorted to bucket 2 with weight {weight}")
             self.db_manager.set(weight, 2)
+            self.send_message(f'2/{weight}', 'localhost', 4999)
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         # Handling error messages

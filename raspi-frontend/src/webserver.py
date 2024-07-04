@@ -70,7 +70,7 @@ def handle_get_counter_value():
     print('Getting counter value')
     socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
     socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
-    
+
 
 def test_thread():
     while True:
@@ -153,7 +153,7 @@ def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(('localhost', 5001))
         s.listen()
-        logging.info(f"Server started and listening on localhost:8001")
+        logging.info(f"Server started and listening on localhost:5001")
 
         while True:
             conn, addr = s.accept()
@@ -166,7 +166,8 @@ def start_server():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     activeSession = Session()
     thread = threading.Thread(target=start_server())
     thread.start()
-    socketio.run(app, debug=False, host='0.0.0.0', port=4999, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=False, host='localhost', port=4999, allow_unsafe_werkzeug=True)

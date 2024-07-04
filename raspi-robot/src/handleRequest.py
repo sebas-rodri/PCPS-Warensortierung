@@ -18,8 +18,7 @@ class Server:
         """
         self.host = host
         self.port = port
-
-        self.robot = Robot()
+        #self.robot = Robot()
 
     def start_server(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -33,18 +32,24 @@ class Server:
                     logging.info(f"Connected by {addr}")
                     data = conn.recv(1024)
                     if data:
-                        response = self.handle_request(data.decode('utf-8'))
-                        self.relayCommand(data, )
+                        # TODO REMOVE
+                        try:
+                            response = self.handle_request(data.decode('utf-8'))
+                        except Exception as e:
+                            pass
+                        self.relayCommand(data, 'localhost')
                         conn.sendall(response.encode('utf-8'))
 
     def send_message(self, message, host, port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((host, port))
-            s.sendall(message.encode('utf-8'))
+            if not isinstance(message, bytes):
+                message = message.encode('utf-8')
+            s.sendall(message)
             response = s.recv(1024)
             print('Received', response.decode('utf-8'))
 
-    def relayCommand(self, message, server_address=('localhost', 5001)) -> None:
+    def relayCommand(self, message, host='localhost', port=5001) -> None:
         """
         Relay a command by sending a message to a server at the specified address.
 
@@ -56,9 +61,9 @@ class Server:
         """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Send message to server
-            s.connect(server_address)
-            s.sendall(message.encode())
-            logging.debug(f"Relay command sent to {server_address}")
+            s.connect((host, port))
+            s.sendall(message)
+            logging.debug(f"Relay command sent to {host}:{port}")
 
     def handle_request(self, message):
         logging.info(f"Received message: {message}")
@@ -79,15 +84,18 @@ class Server:
             return "ERROR: Invalid command or weight"
 
         if command == RESET:
-            logging.info("Reset command received - no action taken")
+            logging.info("Reset command received - Robot will now reset")
+            self.robot.reset()
             return "OK: Reset command"
 
         elif command == BUCKET_ONE:
             logging.info(f"Package sorted to bucket 1 with weight {weight}")
+            self.robot.itemToBoxOne()
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
             logging.info(f"Package sorted to bucket 2 with weight {weight}")
+            self.robot.itemToBoxTwo()
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         # Handling error messages
@@ -142,6 +150,6 @@ class Server:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    server = Server('0.0.0.0', 8000)
+    logging.basicConfig(level=logging.DEBUG)
+    server = Server('localhost', 8001)
     server.start_server()

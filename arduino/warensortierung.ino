@@ -51,17 +51,25 @@ WiFiClient TCP_client;
  * @return the message and weight assembled into a string.
  */
 char* assembleData(char message, float weight) {
-  int weight_int = (int)weight;                     // conversion float to int (forgets all decimals, better to round nr?)
-  char* result = (char*)malloc(6 * sizeof(char));   // allocating memory for string
+    //conversion float to int
+    int weight_int = (int)weight;
+    //allocation for string
+    char* result = (char*)malloc(6 * sizeof(char));
 
-  if (weight_int < 100) {                                   // if the weight is less than three digits (weight less than 100g)
-    snprintf(result, 6, "%c/0%d", message, weight_int);     // a 0 has to be put in front of the weight (weight in message has to be three digits)
-  }
-  else {
-    snprintf(result, 6, "%c/%d", message, weight_int);
-  }
+    if (weight_int == 0) {
+        snprintf(result, 6, "%c/000", message);
+    }
+    else if (weight_int < 10) {                           //case if the weight is less than 2 digits
+        snprintf(result, 6, "%c/00%d", message, weight_int);
+    }
+    else if (weight_int < 100) {                          //case if the weight is less than 3 digits
+        snprintf(result, 6, "%c/0%d", message, weight_int);
+    }
+    else {
+        snprintf(result, 6, "%c/%d", message, weight_int);
+    }
 
-  return result;
+    return result;
 }
 
 
@@ -79,7 +87,7 @@ void exitFunction(char error) {
 /*!
  * Set up the Wi-Fi connection via TCP to the Raspberry Pi.
  */
-int setUpWiFi() {
+void setUpWiFi() {
   Serial.println("Arduino: TCP CLIENT");
 
   if (WiFi.status() == WL_NO_MODULE) {                          // check for the Wi-Fi module
@@ -113,7 +121,7 @@ int setUpWiFi() {
 /*!
  * Start up the scale
  */
-void startup_Scale() {
+void startupScale() {
   LoadCell.begin();
   //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
   float calibration_value;  // calibration value (see example file "Calibration.ino")
@@ -154,7 +162,7 @@ void setup() {
 
   /* start further necessities */
   setUpWiFi();
-  startup_Scale();
+  startupScale();
   // init THRESHOLD with data received from Raspberry Pi
 
   /* visual output for Startup */
@@ -182,14 +190,16 @@ float scale() {
  * Checks the light barrier.
  * @return -1 if barrier of box 1 is triggered, -2 for box 2 or 0 if none.
  */
-int light_barrier() {
-  if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {      // checks first light barrier
-      return -1;
-  }
-  if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) < SENSITIVITY_LIGHT_BARRIER) {  //checks second light barrier
-      return -1;
-  }
-  return 0;
+char lightBarrier() {
+    //checks first light barrier
+    if ((standard_lb - analogRead(LIGHT_BARRIER)) >= SENSITIVITY_LIGHT_BARRIER) {
+        return 'l';
+    }
+    //checks second light barrier
+    if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) >= SENSITIVITY_LIGHT_BARRIER) {
+        return 'L';
+    }
+    return '0';
 }
 
 
@@ -233,6 +243,7 @@ void sendData(char* message) {
   }
 
   TCP_client.write(message);  // send to TCP Server
+  free(message);
   TCP_client.flush();
 }
 
@@ -242,7 +253,7 @@ void sendData(char* message) {
  */
 void loop() {
 
-  if (light_barrier() == -1) {                            // checks the light barrier and exits the function if triggered
+  if (lightBarrier() == -1) {                            // checks the light barrier and exits the function if triggered
     char* message = assembleData(sorting(), scale());     // assemble string to send to Raspberry Pi
     sendData(message);
     digitalWrite(LED, HIGH);                              // LED signal light barrier is blocked (a box is full)

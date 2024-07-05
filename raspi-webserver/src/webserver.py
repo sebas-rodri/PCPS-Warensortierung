@@ -20,7 +20,8 @@ UPDATED_DATABASE = 9
 MALLOC = 'm'  # malloc error
 SCALE = 's'   # scale error
 WEIGHT = 'w'  # weighting error
-LIGHT = 'l'   # light barrier error
+LIGHTBOX1 = 'l'   # light barrier error
+LIGHTBOX2 = 'L'   # light barrier error
 WIFI = 'i'    # internet error
 TCP = 't'     # server error
 
@@ -71,6 +72,11 @@ def handle_get_counter_value():
     socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
     socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
 
+@socketio.on('threshold')
+def update_threshold(data):
+    activeSession.threshold = data['value']
+    print(f'Threshold updated to {activeSession.threshold}')
+
 def handle_request(message):
     logging.info(f"Received message: {message}")
 
@@ -93,8 +99,10 @@ def handle_request(message):
         # TODO GET NEW DATA FROM DATABASE
         logging.info(f"Received updated database: {message}")
         # response = activeSession.send_message('get_data', 'localhost', 8000)
-        activeSession.box1 += 1
-        activeSession.box2 += 1
+        if weight > activeSession.threshold:
+            increment('box2')
+        else:
+            increment('box1')
         # handle_get_counter_value()
         return "OK: Updated database"
 
@@ -111,7 +119,11 @@ def handle_request(message):
         logging.error("Weight error: package weights too little or too much")
         return "ERROR: Weight error"
 
-    elif command_char == LIGHT:
+    elif command_char == LIGHTBOX1:
+        logging.error("Light barrier error: the light barrier was triggered")
+        return "ERROR: Light barrier error"
+
+    elif command_char == LIGHTBOX2:
         logging.error("Light barrier error: the light barrier was triggered")
         return "ERROR: Light barrier error"
 

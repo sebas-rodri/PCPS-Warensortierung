@@ -14,7 +14,7 @@
 #define LIGHT1  'l'     // light barrier error: the light barrier for box 1 was triggered
 #define LIGHT2  'L'     // light barrier error: the light barrier for box 2 was triggered
 
-#define PORT          2360
+#define PORT          8000
 #define IP_ADDRESS    "192.168.1.147" // anpassen
 
 

@@ -5,10 +5,11 @@ import logging
 class Session:
     def __init__(self):
         self.host = 'localhost'
-        self.port = 8000
+        self.port = 5001
         self.active = False
         self.box1 = 0
         self.box2 = 0
+        self.threshold = 100 #in grams
     
     def start_pause(self):
         self.active = not self.active

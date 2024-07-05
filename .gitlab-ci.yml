@@ -30,22 +30,22 @@ variables:
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   # DOCKER_DRIVER: overlay2
 
-build_nginx:
+build_backend:
   stage: build
   script:
-    - cd raspi-webserver
-    - docker build -t $CI_REGISTRY_IMAGE/webserver:latest -f Dockerfile .
-    - docker push $CI_REGISTRY_IMAGE/webserver:latest
+    - cd raspi-backend
+    - docker build -t $CI_REGISTRY_IMAGE/backend:latest -f Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/backend:latest
   only:
     - develop
     - main
 
-build_raspi:
+build_webserver:
   stage: build
   script:
     - cd raspi-robot
-    - docker build -t $CI_REGISTRY_IMAGE/robot:latest -f Dockerfile .
-    - docker push $CI_REGISTRY_IMAGE/robot:latest
+    - docker build -t $CI_REGISTRY_IMAGE/webserver:latest -f Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/webserver:latest
   only:
     - develop
     - main

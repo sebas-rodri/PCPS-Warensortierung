@@ -79,6 +79,7 @@ void exitFunction(char error) {
   // send error message to raspi
   char* message = assembleData(error, 0.0);
   sendData(message);
+  free(message);
   TCP_client.stop();
   exit(0);
 }
@@ -196,16 +197,16 @@ float scale() {
  * 
  * @return -1 if triggered and 0 if not triggered
  */
-int lightBarrier() {
+char lightBarrier() {
   //checks first light barrier
     if ((standard_lb - analogRead(LIGHT_BARRIER)) >= SENSITIVITY_LIGHT_BARRIER) {
-        return -1;
+        return 'l';
     }
     //checks second light barrier
     if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) >= SENSITIVITY_LIGHT_BARRIER) {
-        return -2;
+        return 'L';
     }
-    return 0;
+    return '0';
 }
 
 /**
@@ -263,11 +264,12 @@ void loop() {
 
 
 
-  // checks the light barrier and exits the function if triggered
-  if (lightBarrier() == -1) {
+  // checks the light barrier
+  if (lightBarrier() == '0') {
     //Serial.println(sorting());
     char* message = assembleData(sorting(), scale());  // assemble string to send to raspberry pi
     sendData(message);
+    free(message);
     digitalWrite(LED, HIGH);  // signal for sending
 
     delay(10000);
@@ -276,6 +278,9 @@ void loop() {
   }
   // error handling noch ausarbeten
   else {
+      char* message = assembleData(lightBarrier(), 0.0);
+      sendData(message);
+      free(message);
     Serial.println("Lichtschranke blockiert");  //error message
     digitalWrite(LED, HIGH);
     delay(200);

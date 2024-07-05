@@ -80,7 +80,7 @@ void exitFunction(char error) {
 /**
  * Set up for the WIFI uses predefined SSID and Password
  */
-int setUpWiFi() {
+void setUpWiFi() {
   Serial.println("Arduino: TCP CLIENT");
 
   // check for the WiFi module:
@@ -118,7 +118,7 @@ int setUpWiFi() {
 /**
  * setup the scale for measurements
  */
-void startup_Scale() {
+void startupScale() {
   LoadCell.begin();
   //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
   float calibration_value;  // calibration value (see example file "Calibration.ino")
@@ -160,7 +160,7 @@ void setup() {
 
   /* start further necesseties */
   setUpWiFi();
-  startup_Scale();
+  startupScale();
   // init THRESHOLD with data received from raspi
 
   /* visual output for Startup */
@@ -190,7 +190,7 @@ float scale() {
  * 
  * @return -1 if triggered and 0 if not triggered
  */
-int light_barrier() {
+int lightBarrier() {
   //checks first light barrier
   if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {
     return -1;
@@ -258,7 +258,7 @@ void loop() {
 
 
   // checks the light barrier and exits the function if triggered
-  if (light_barrier() == -1) {
+  if (lightBarrier() == -1) {
     //Serial.println(sorting());
     char* message = assembleData(sorting(), scale());  // assemble string to send to raspberry pi
     sendData(message);

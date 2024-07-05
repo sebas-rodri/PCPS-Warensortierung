@@ -5,6 +5,7 @@ Commands for the robot
 RESET = 0
 BUCKET_ONE = 1
 BUCKET_TWO = 2
+GET_PACKAGE = 3
 
 """
 Error messages

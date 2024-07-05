@@ -13,6 +13,7 @@ socketio = SocketIO(app, async_mode='threading')
 RESET = 0
 BUCKET_ONE = 1
 BUCKET_TWO = 2
+GET_PACKAGE = 3
 UPDATED_DATABASE = 9
 
 # Error messages
@@ -91,10 +92,11 @@ def handle_request(message):
     if command == UPDATED_DATABASE:
         # TODO GET NEW DATA FROM DATABASE
         logging.info(f"Received updated database: {message}")
-        response = activeSession.send_message('get_data', 'localhost', 8000)
-        activeSession.box1 = response[0]
-        activeSession.box2 = response[1]
-        handle_get_counter_value()
+        # response = activeSession.send_message('get_data', 'localhost', 8000)
+        activeSession.box1 += 1
+        activeSession.box2 += 1
+        # handle_get_counter_value()
+        return "OK: Updated database"
 
     # Handling error messages
     elif command_char == MALLOC:

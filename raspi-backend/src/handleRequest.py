@@ -7,6 +7,7 @@ from database import DatabaseManager
 RESET = 0
 BUCKET_ONE = 1
 BUCKET_TWO = 2
+GET_PACKAGE = 3
 
 # Error messages
 MALLOC = 'm'  # malloc error
@@ -87,6 +88,11 @@ class PackageSortingServer:
             self.send_message('2/000', 'localhost', 8001)
             self.send_message('9/000', 'localhost', 5001)
             return f"OK: Package sorted to bucket 2 with weight {weight}"
+
+        elif command == GET_PACKAGE:
+            logging.info(f"Package transport to scale")
+            self.send_message('3/000', 'localhost', 8001)
+            return f"OK: Package transport to scale"
 
         # Handling error messages
         elif command_char == MALLOC:

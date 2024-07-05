@@ -21,7 +21,7 @@ class Server:
         """
         self.host = host
         self.port = port
-        #self.robot = Robot()
+        self.robot = Robot()
 
     def start_server(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -67,18 +67,23 @@ class Server:
 
         if command == RESET:
             logging.info("Reset command received - Robot will now reset")
-            #self.robot.reset()
+            self.robot.reset()
             return "OK: Reset command"
 
         elif command == BUCKET_ONE:
             logging.info(f"Package sorted to bucket 1 with weight {weight}")
-            #self.robot.itemToBoxOne()
+            self.robot.itemToBoxOne()
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
             logging.info(f"Package sorted to bucket 2 with weight {weight}")
-            #self.robot.itemToBoxTwo()
+            self.robot.itemToBoxTwo()
             return f"OK: Package sorted to bucket 2 with weight {weight}"
+
+        elif command == GET_PACKAGE:
+            logging.info(f"Get package command received")
+            self.robot.get_package()
+            return f"OK: Sent request to get package"
 
         # Handling error messages
         elif command_char == MALLOC:

@@ -10,8 +10,10 @@
 # bits.
 #
 # By default this script does nothing.
-#
+# TODO CHANGE DOCKER COMMANDS TO REAL THING
 sleep 5
+docker run -P backend
+docker run -P frontend
 python3 /home/team/Desktop/praktikum-warensortierung/raspi/main.py &
 
 exit 0

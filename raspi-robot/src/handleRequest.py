@@ -4,12 +4,15 @@ from arduino_commands import *
 from robot_functions import Robot
 
 
+RASPI_IP = '0.0.0.0'
+RASPI_PORT = 2360
+ARDUINO_IP = ''
+ARDUINO_PORT = 0
+MSG_BYTES = 0
+
 class Server:
     """
     Starts the server and initializes connection with robot.
-
-    :param host: The host address to bind the server to.
-    :param port: The port to bind the server to.
     """
 
     def __init__(self, host, port) -> None:
@@ -107,25 +110,20 @@ class Server:
             return "ERROR: Unknown command"
 
 
-    @staticmethod
-    def getLocalIP():
-        """
-        Returns the IP address of the local machine.
-        :return: IP address
-        """
+    """
+    send Data to arduino server
+    """
+    def sendData(self, message: str) -> None:
+        # Create a connection to the server application on port 81
+        tcp_socket = socket.create_connection(('localhost', 81))
+
         try:
-            # Create a socket object
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            # Connect to a remote server (doesn't matter which one)
-            s.connect(("8.8.8.8", 80))
-            # Get the local IP address of the connected socket
-            local_ip = s.getsockname()[0]
-            # Close the socket
-            s.close()
-            return local_ip
-        except Exception as e:
-            logging.exception(e)
-            return None
+            data = str.encode(message)
+            tcp_socket.sendall(data)
+
+        finally:
+            print("Closing socket")
+            tcp_socket.close()
 
 
 if __name__ == "__main__":

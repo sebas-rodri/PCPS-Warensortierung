@@ -180,7 +180,7 @@ float scale() {
 
 /*!
  * Checks the light barrier.
- * @return -1 if a barrier is triggered or 0 if not.
+ * @return -1 if barrier of box 1 is triggered, -2 for box 2 or 0 if none.
  */
 int light_barrier() {
   if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {      // checks first light barrier

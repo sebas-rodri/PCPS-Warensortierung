@@ -40,13 +40,16 @@ class PackageSortingServer:
                         conn.sendall(response.encode('utf-8'))
 
     def send_message(self, message, host, port):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((host, port))
-            if not isinstance(message, bytes):
-                message = message.encode('utf-8')
-            s.sendall(message)
-            response = s.recv(1024)
-            print('Received', response.decode('utf-8'))
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((host, port))
+                if not isinstance(message, bytes):
+                    message = message.encode('utf-8')
+                s.sendall(message)
+                response = s.recv(1024)
+                print('Received', response.decode('utf-8'))
+        except ConnectionRefusedError:
+            logging.error(f"Connection to {host}:{port} refused")
 
     def handle_request(self, message):
         logging.info(f"Received message: {message}")

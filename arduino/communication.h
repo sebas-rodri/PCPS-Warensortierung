@@ -10,9 +10,9 @@
 #define BUCKET_ONE    (byte)1
 #define BUCKET_TWO    (byte)2
 #define PORT          2360
-#define IP_ADDRESS    "192.168.1.147"
+#define IP_ADDRESS    "192.168.1.145"
 
 
-int setUpWiFi();
+void setUpWiFi();
 
 void sendData(char* message);

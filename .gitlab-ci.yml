@@ -33,7 +33,7 @@ variables:
 build_nginx:
   stage: build
   script:
-    - cd raspi-webserver
+    - cd raspi-frontend
     - docker build -t $CI_REGISTRY_IMAGE/webserver:latest -f Dockerfile .
     - docker push $CI_REGISTRY_IMAGE/webserver:latest
   only:

@@ -55,10 +55,16 @@ char* assembleData(char message, float weight) {
   //allocation for string
   char* result = (char*)malloc(6 * sizeof(char));
 
-  //case if the weight is less then 3 digits
-  if (weight_int < 100) {
+  if (weight_int == 0) {
+      snprintf(result, 6, "%c/000", message);
+  }
+  else if (weight_int < 10) {                           //case if the weight is less than 2 digits
+      snprintf(result, 6, "%c/00%d", message, weight_int);
+  }
+  else if (weight_int < 100) {                          //case if the weight is less than 3 digits
     snprintf(result, 6, "%c/0%d", message, weight_int);
-  } else {
+  }
+  else {
     snprintf(result, 6, "%c/%d", message, weight_int);
   }
 

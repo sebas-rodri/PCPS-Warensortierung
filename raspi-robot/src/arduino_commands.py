@@ -9,9 +9,7 @@ BUCKET_TWO = 2
 """
 Error messages
 """
-MALLOC = 'm'    # malloc error: malloc for boxes_array failed
 SCALE = 's'     # scale error: “Timeout, check MCU>HX711 wiring and pin designations”
 WEIGHT = 'w'    # weighting error: package weights too little or too much
-LIGHT = 'l'     # light barrier error: the light barrier was triggered
-WIFI = 'i'      # internet error: “Communication with WiFi module failed”
-TCP = 't'       # server error: “Failed to connect to TCP server”
+LIGHT1 = 'l'    # light barrier error: the light barrier for box 1 was triggered
+LIGHT2 = 'L'    # light barrier error: the light barrier for box 2 was triggered

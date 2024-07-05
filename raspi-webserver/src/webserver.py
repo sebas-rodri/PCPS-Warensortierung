@@ -10,11 +10,11 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode='threading')
 
 # Immutable command variables
-RESET = 0
-BUCKET_ONE = 1
-BUCKET_TWO = 2
-GET_PACKAGE = 3
-UPDATED_DATABASE = 9
+RESET = '0'
+BUCKET_ONE = '1'
+BUCKET_TWO = '2'
+GET_PACKAGE = '3'
+UPDATED_DATABASE = '9'
 
 # Error messages
 MALLOC = 'm'  # malloc error
@@ -52,6 +52,10 @@ def box1full():
     print('Box 1 is full')
     socketio.emit('box1_full', {'value': activeSession.box1}, namespace='/')
 
+def box2full():
+    print('Box 2 is full')
+    socketio.emit('box2_full', {'value': activeSession.box2}, namespace='/')
+
 def box1empty():
     print('Box 1 is empty')
     socketio.emit('box1_empty', {'value': activeSession.box1}, namespace='/')
@@ -65,6 +69,8 @@ def handle_message(data):
 @socketio.on('start/pause')
 def handle_start_pause():
     activeSession.start_pause()
+    message = '3/100'
+    activeSession.send_message(message, 'localhost', 8000)
 
 @socketio.on('get_counter_value')
 def handle_get_counter_value():
@@ -89,7 +95,7 @@ def handle_request(message):
     weight = None
 
     try:
-        command = int(command_char)
+        command = command_char
         weight = int(message[2:5])
     except ValueError:
         logging.error(f"Invalid command or weight: {command_char}, {message[2:5]}")
@@ -100,10 +106,14 @@ def handle_request(message):
         logging.info(f"Received updated database: {message}")
         # response = activeSession.send_message('get_data', 'localhost', 8000)
         if weight > activeSession.threshold:
+            
             increment('box2')
+            
         else:
             increment('box1')
         # handle_get_counter_value()
+        print(weight,activeSession.threshold)
+        socketio.emit('enable_button', namespace='/')
         return "OK: Updated database"
 
     # Handling error messages
@@ -121,10 +131,12 @@ def handle_request(message):
 
     elif command_char == LIGHTBOX1:
         logging.error("Light barrier error: the light barrier was triggered")
+        box1full()
         return "ERROR: Light barrier error"
 
     elif command_char == LIGHTBOX2:
         logging.error("Light barrier error: the light barrier was triggered")
+        box2full()
         return "ERROR: Light barrier error"
 
     elif command_char == WIFI:

@@ -100,18 +100,21 @@
         </div>
     </div>
     <div class="buttondiv">
-        <button onclick="startOrPause()" class="buttonblue" id="button">Running</button>
+        <button onclick="startOrPause()" class="buttonblue" id="button" disabled>Pickup</button>
     </div>
+    
     
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         const socket = io();
-
+        var button = document.getElementById('button');
+        button.disabled = false;
         let box1counter = 0; //function to get current value of box1
         let box2counter = 0;
         socket.on('connect', () => {
             console.log('Connected to WebSocket server');
-            socket.emit('get_counter_value');
+            socket.emit('get_counter_value'); //Set current counter
+            socket.emit('get_threshould')
         });
 
         socket.on('message_from_server', (data) => {
@@ -135,12 +138,18 @@
             //change to red
             document.getElementById("divbox1").className = "boxred";
             document.getElementById("box1").innerText = "Full Box 1";
+            document.getElementById('button').innerText = 'Wait Till Box is Empty';
+            document.getElementById('button').disabled = true;
+            document.getElementById('button').className = 'buttonred';
         });
 
         socket.on('box2_full', () => {
             //change to red
             document.getElementById("divbox2").className = "boxred";
             document.getElementById("box2").innerText = "Full Box 2";
+            document.getElementById('button').innerText = 'Wait Till Box is Empty';
+            document.getElementById('button').disabled = true;
+            document.getElementById('button').className = 'buttonred';
         });
 
         socket.on('box1_empty', () => {
@@ -165,18 +174,25 @@
                 document.getElementById("divbox2").className = "boxred";
                 document.getElementById("box2").innerText = "Full Box 2";
             }
+            
         }
 
         function changeColorToGreen(){
             //change the class of div
                 document.getElementById("divbox1").className = "boxgreen";
                 document.getElementById("box1").innerText = box1counter;
+                document.getElementById('button').disabled = false;
+                document.getElementById('button').innerText = 'Pickup';
+                document.getElementById('button').className = 'buttonblue';
         }
 
         function changeColorToGreen2(){
             //change the class of div
                 document.getElementById("divbox2").className = "boxgreen";
                 document.getElementById("box2").innerText = box1counter;
+                document.getElementById('button').disabled = false;
+            document.getElementById('button').innerText = 'Pickup';
+            document.getElementById('button').className = 'buttonblue';
         }
 
         socket.on('update_counter2', (value) => {
@@ -205,11 +221,18 @@
                 document.getElementById('button').innerText = 'Running';
                 document.getElementById('button').className = 'buttonblue';}
             else{
-                document.getElementById('button').innerText = 'Inactive';
+                document.getElementById('button').innerText = 'Wait For Robot';
+                document.getElementById('button').disabled = true;
                 document.getElementById('button').className = 'buttonred';
             }
             socket.emit('start/pause');
         }
+
+        socket.on('enable_button', () => {
+            document.getElementById('button').disabled = false;
+            document.getElementById('button').innerText = 'Pickup';
+            document.getElementById('button').className = 'buttonblue';
+        });
 
         function sendMessage() {
             const message = document.getElementById('messageInput').value;

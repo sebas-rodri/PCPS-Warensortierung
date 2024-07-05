@@ -5,7 +5,7 @@ import logging
 class Session:
     def __init__(self):
         self.host = 'localhost'
-        self.port = 8000
+        self.port = 5001
         self.active = False
         self.box1 = 0
         self.box2 = 0

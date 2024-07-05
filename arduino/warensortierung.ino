@@ -78,15 +78,13 @@ void exitFunction(char error) {
 
 /*!
  * Set up the Wi-Fi connection via TCP to the Raspberry Pi.
- * @return ???
  */
 int setUpWiFi() {
   Serial.println("Arduino: TCP CLIENT");
 
-  // check for the WiFi module:
-  if (WiFi.status() == WL_NO_MODULE) {
+  if (WiFi.status() == WL_NO_MODULE) {                          // check for the Wi-Fi module
     Serial.println("Communication with WiFi module failed!");
-    exit(0);  // on error terminate program
+    exit(0);                                                    // on error terminate program
   }
 
   /*String fv = WiFi.firmwareVersion();
@@ -96,21 +94,18 @@ int setUpWiFi() {
 
   Serial.print("Attempting to connect to SSID: ");
   Serial.println(ssid);
-  // attempt to connect to WiFi network:
-  while (WiFi.begin(ssid) != WL_CONNECTED) {
-    delay(10000);  // wait 10 seconds for connection
+  while (WiFi.begin(ssid) != WL_CONNECTED) {                    // attempt to connect to Wi-Fi network
+    delay(10000);                                               // wait 10 seconds for connection and try again
   }
-
   Serial.print("Connected to WiFi ");
   Serial.println(ssid);
 
-  // connect to TCP server
-  if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {
+  if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {   // connect to TCP server
     Serial.println("Connected to TCP server");
-    TCP_client.write("Hello!");  // send to TCP Server
+    TCP_client.write("Hello!");                                 // send to TCP Server
     TCP_client.flush();
   } else {
-    Serial.println("Failed to connect to TCP server");
+    Serial.println("Failed to connect to TCP server");          // in case of failure the program tries again before sending data in sendData
   }
 }
 
@@ -144,9 +139,8 @@ void startup_Scale() {
  * This code runs once on start up of the Arduino. The sensors are declared, all set up functions are called and the LED blinks to indicate completed set up.
  */
 void setup() {
-  // Setup for testing with serial port(9600)
-  Serial.begin(9600);
-  Serial.print("test begin\n");
+  Serial.begin(9600);               // Setup for testing with serial port(9600)
+    Serial.print("test begin\n");
 
   /* initialize the sensors*/
   pinMode(BUTTON, INPUT);
@@ -158,10 +152,10 @@ void setup() {
   standard_lb_2 = analogRead(LIGHT_BARRIER_2);
   digitalWrite(LASER, HIGH);
 
-  /* start further necesseties */
+  /* start further necessities */
   setUpWiFi();
   startup_Scale();
-  // init THRESHOLD with data received from raspi
+  // init THRESHOLD with data received from Raspberry Pi
 
   /* visual output for Startup */
   digitalWrite(LED, HIGH);
@@ -177,9 +171,9 @@ void setup() {
  * @return weight on the scale in gram.
  */
 float scale() {
-  while (!LoadCell.update()) {}  // wait for scale output
+  while (!LoadCell.update()) {}             // wait for scale output
   float weight = LoadCell.getData();
-  //Serial.println(weight);               // test scale weight
+  //Serial.println(weight);                 // test scale weight
   return weight;
 }
 
@@ -189,22 +183,20 @@ float scale() {
  * @return -1 if a barrier is triggered or 0 if not.
  */
 int light_barrier() {
-  //checks first light barrier
-  if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {
-    return -1;
+  if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {      // checks first light barrier
+      return -1;
   }
-  //checks second light barrier
-  if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) < SENSITIVITY_LIGHT_BARRIER) {
-    return -1;
+  if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) < SENSITIVITY_LIGHT_BARRIER) {  //checks second light barrier
+      return -1;
   }
   return 0;
 }
 
-/**
- * sorting the package into the right box (Box 1 with least weight)
- *
- * @returns number of box (1 or 2) or terminates program with error
- */
+
+ /*!
+  * sorting the package into the right box (Box 1 with least weight)
+  * @return number of box (1 or 2) or terminates program with error
+  */
 char sorting() {
   // ???
   for (int i = 0; i <= 20; i++) {
@@ -221,21 +213,18 @@ char sorting() {
 }
 
 
-
-
-/**
+/*!
  * send Data over TCP connection tp Raspberry Pi
- * @param message is the message to send
+ * @param message
  */
 void sendData(char* message) {
   if (!TCP_client.connected()) {
     Serial.println("Connection is disconnected");
     TCP_client.stop();
 
-    // reconnect to TCP server
-    if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {
+    if (TCP_client.connect(TCP_SERVER_ADDR, TCP_SERVER_PORT)) {     // reconnect to TCP server
       Serial.println("Reconnected to TCP server");
-      TCP_client.write("Hello!");  // send to TCP Server
+      TCP_client.write("Hello!");                                   // send to TCP Server
       TCP_client.flush();
     } else {
       Serial.println("Failed to reconnect to TCP server");
@@ -248,20 +237,15 @@ void sendData(char* message) {
 }
 
 
-/**
- * main code to run repeatedly:
+/*!
+ * After the start up, this is the function that's actually run. It runs on a loop.
  */
 void loop() {
 
-
-
-  // checks the light barrier and exits the function if triggered
-  if (light_barrier() == -1) {
-    //Serial.println(sorting());
-    char* message = assembleData(sorting(), scale());  // assemble string to send to raspberry pi
+  if (light_barrier() == -1) {                            // checks the light barrier and exits the function if triggered
+    char* message = assembleData(sorting(), scale());     // assemble string to send to Raspberry Pi
     sendData(message);
-    digitalWrite(LED, HIGH);  // signal for sending
-
+    digitalWrite(LED, HIGH);                              // LED signal light barrier is blocked (a box is full)
     delay(10000);
     digitalWrite(LED, LOW);
 

@@ -8,7 +8,7 @@
 #include <EEPROM.h>
 #endif
 
-/*---- Definition for sensor connections slots ----*/
+/*---- define sensor connections slots ----*/
 #define LIGHT_BARRIER A4
 #define LIGHT_BARRIER_2 A5
 #define LED 10
@@ -28,15 +28,15 @@ const float MAX_WEIGHT = 10000;  // maximal weight for the packages
 float THRESHOLD = 20;            // weight threshold for package sorting
 unsigned int NR_BOXES = 1;       // number of boxes
 int* boxes_array;                // array for storing the amount of packages
-int standard_lb = 0;             // Variable for the standard value of the light barrier
-int standard_lb_2 = 0;           // Variable for the standard value of the light barrier
+int standard_lb = 0;             // variable for the standard value of the light barrier for one box
+int standard_lb_2 = 0;           // variable for the standard value of the light barrier for other box
 int full_box = -1;               // variable for the box status
 
-/*---- Initializing Variable for WIFI ----*/
-char ssid[] = SECRET_SSID;                 // your network SSID (name), see communication.h
-char pass[] = SECRET_PASS;                 // your network password (use for WPA, or use as key for WEP), see communication.h
-const char* TCP_SERVER_ADDR = IP_ADDRESS;  // see communication.h
-const int TCP_SERVER_PORT = PORT;
+/*---- initialize variables needed for Wi-Fi ----*/
+char ssid[] = SECRET_SSID;                 // the network SSID (name), see communication.h
+char pass[] = SECRET_PASS;                 // the network password (use for WPA, or use as key for WEP), see communication.h
+const char* TCP_SERVER_ADDR = IP_ADDRESS;  // to this IP-address data shall be sent
+const int TCP_SERVER_PORT = PORT;          // to this port data shall be sent
 
 WiFiClient TCP_client;
 
@@ -44,21 +44,20 @@ WiFiClient TCP_client;
 
 
 
-/**
- * assemble data to be send to raspberry pi into string according to specifications
- *
- * @return message to be send as string
+/*!
+ * Assembling a string to send to the Raspberry Pi from a message and a weight.
+ * @param message is either a number representing a command or a character representing an error message
+ * @param weight is the weight of the packet. Default 0.0.
+ * @return the message and weight assembled into a string.
  */
 char* assembleData(char message, float weight) {
-  //conversion float to int
-  int weight_int = (int)weight;
-  //allocation for string
-  char* result = (char*)malloc(6 * sizeof(char));
+  int weight_int = (int)weight;                     // conversion float to int (forgets all decimals, better to round nr?)
+  char* result = (char*)malloc(6 * sizeof(char));   // allocating memory for string
 
-  //case if the weight is less then 3 digits
-  if (weight_int < 100) {
-    snprintf(result, 6, "%c/0%d", message, weight_int);
-  } else {
+  if (weight_int < 100) {                                   // if the weight is less than three digits (weight less than 100g)
+    snprintf(result, 6, "%c/0%d", message, weight_int);     // a 0 has to be put in front of the weight (weight in message has to be three digits)
+  }
+  else {
     snprintf(result, 6, "%c/%d", message, weight_int);
   }
 
@@ -66,19 +65,20 @@ char* assembleData(char message, float weight) {
 }
 
 
-/**
- * orderly shut down of the entire system and sending of error messages (only after wifi connection is set up)
+/*!
+ * Orderly shut down of the program including an error message to be sent to the Raspberry Pi.
+ * @param error represents the reason for the shut down.
  */
 void exitFunction(char error) {
-  // send error message to raspi
   char* message = assembleData(error, 0.0);
   sendData(message);
   TCP_client.stop();
   exit(0);
 }
 
-/**
- * Set up for the WIFI uses predefined SSID and Password
+/*!
+ * Set up the Wi-Fi connection via TCP to the Raspberry Pi.
+ * @return ???
  */
 int setUpWiFi() {
   Serial.println("Arduino: TCP CLIENT");
@@ -115,8 +115,8 @@ int setUpWiFi() {
 }
 
 
-/**
- * setup the scale for measurements
+/*!
+ * Start up the scale
  */
 void startup_Scale() {
   LoadCell.begin();
@@ -140,8 +140,8 @@ void startup_Scale() {
   }
 }
 
-/**
- * setup code to run once:
+/*!
+ * This code runs once on start up of the Arduino. The sensors are declared, all set up functions are called and the LED blinks to indicate completed set up.
  */
 void setup() {
   // Setup for testing with serial port(9600)
@@ -172,10 +172,9 @@ void setup() {
 
 /*____________________ LOOP Functions ____________________*/
 
-/**
- * read out the scale and handle errors
- * 
- * @returns weight of package
+/*!
+ * Reads out the scale.
+ * @return weight on the scale in gram.
  */
 float scale() {
   while (!LoadCell.update()) {}  // wait for scale output
@@ -185,10 +184,9 @@ float scale() {
 }
 
 
-/**
- * read out the photoelectric sensor
- * 
- * @return -1 if triggered and 0 if not triggered
+/*!
+ * Checks the light barrier.
+ * @return -1 if a barrier is triggered or 0 if not.
  */
 int light_barrier() {
   //checks first light barrier

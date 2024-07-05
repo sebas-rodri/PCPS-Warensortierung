@@ -198,14 +198,14 @@ float scale() {
  */
 int lightBarrier() {
   //checks first light barrier
-  if ((standard_lb - analogRead(LIGHT_BARRIER)) < SENSITIVITY_LIGHT_BARRIER) {
-    return -1;
-  }
-  //checks second light barrier
-  if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) < SENSITIVITY_LIGHT_BARRIER) {
-    return -1;
-  }
-  return 0;
+    if ((standard_lb - analogRead(LIGHT_BARRIER)) >= SENSITIVITY_LIGHT_BARRIER) {
+        return -1;
+    }
+    //checks second light barrier
+    if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) >= SENSITIVITY_LIGHT_BARRIER) {
+        return -2;
+    }
+    return 0;
 }
 
 /**

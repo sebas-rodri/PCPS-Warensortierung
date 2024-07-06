@@ -286,6 +286,7 @@ void receiveData() {
 
 /*!
  * Decipher the message received from Raspberry Pi. Handle requests accordingly.
+ * @param message is the request to be handled.
  */
 void handleRequest(char *message) {
     if (message[0] == '5') {            // if threshold is to be assigned

@@ -34,7 +34,7 @@ char SSID[] = SECRET_SSID;                  // the network SSID (name), see comm
 char PASS[] = SECRET_PASS;                  // the network password (use for WPA, or use as key for WEP), see communication.h
 const char *TCP_SERVER_ADDR = IP_ADDRESS;   // to this IP-address data shall be sent
 const int TCP_SERVER_PORT = PORT;           // to this port data shall be sent
-IPAddress ip(192, 168, 1, 141);
+IPAddress IP(192, 168, 1, 141);
 
 WiFiServer server(80);                      // initialize TCP server
 WiFiClient TCP_client;                      // initialize TCP client
@@ -43,7 +43,7 @@ WiFiClient TCP_client;                      // initialize TCP client
 
 /*!
  * Assembling a string to send to the Raspberry Pi from a message and a weight.
- * @param message is either a number representing a command or a character representing an error message
+ * @param message is either a number representing a command or a character representing an error message.
  * @param weight is the weight of the packet.
  * @return the message and weight assembled into a string. Example: "1/059"
  */
@@ -69,12 +69,12 @@ char *assembleData(char message, float weight) {
 
 
 /*!
- * Set up the Wi-Fi connection via TCP to the Raspberry Pi.
+ * Set up the Wi-Fi connection to the Raspberry Pi.
  */
 void setUpWiFi() {
     Serial.println("Arduino: TCP CLIENT");
 
-    WiFi.config(ip);
+    WiFi.config(IP);
 
     if (WiFi.status() == WL_NO_MODULE) {            // check for the Wi-Fi module
         Serial.println("Communication with WiFi module failed!");
@@ -112,7 +112,7 @@ void setUpWiFi() {
 
 
 /*!
- * Start up the scale
+ * Start up the scale.
  */
 void startupScale() {
     LoadCell.begin();
@@ -141,7 +141,7 @@ void startupScale() {
 }
 
 /*!
- * This code runs once on start up of the Arduino. The sensors are declared, all set up functions are called and the LED blinks to indicate completed set up.
+ * This code runs once on start up of the Arduino. The sensors are declared and all set up functions are called.
  */
 void setup() {
     Serial.begin(9600);             // Setup for testing with serial port(9600)
@@ -197,8 +197,8 @@ void lightBarrier() {
 
 
 /*!
-  * sorting the package into the right box (Box 1 with least weight)
-  * @return number of box (1 or 2) or terminates program with error
+  * Sorting the package into the right box (Box 1 with least weight)
+  * @return number of box (1 or 2) or terminates program with error.
   */
 char sorting() {
     /* read out the scale 20 times to get the right weight */
@@ -222,7 +222,7 @@ char sorting() {
 
 /*!
  * Declare the threshold for sorting the packages.
- * @param message is the sting from which the threshold is to be read.
+ * @param message is the string from which the threshold is to be read.
  */
 void assignThreshold(char *message) {
     char weight_str[4];

@@ -14,6 +14,7 @@ RESET = '0'
 BUCKET_ONE = '1'
 BUCKET_TWO = '2'
 GET_PACKAGE = '3'
+THRESHOLD = '5'
 UPDATED_DATABASE = '9'
 
 # Error messages
@@ -34,6 +35,24 @@ def index():
 def handle_connect():
     print('Client connected')
 
+@socketio.on('get_counter_value')
+def handle_get_counter_value():
+    print('Getting counter value')
+    socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
+    socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
+
+@socketio.on('get_threshold')
+def handle_get_threshold():
+    print('Getting threshold')
+    socketio.emit('set_threshold', {'value': activeSession.threshold}, namespace='/')
+
+@socketio.on('get_if_full')
+def handle_get_if_full():
+    logging.info('Getting if full')
+    if activeSession.box1Full:
+        box1full()
+    if activeSession.box2Full:
+        box2full()
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
@@ -49,16 +68,28 @@ def increment(box):
         socketio.emit('update_counter2', {'value': activeSession.box2},namespace='/')
 
 def box1full():
-    print('Box 1 is full')
+    logging.info('Box 1 is full')
+    activeSession.box1Full = True
     socketio.emit('box1_full', {'value': activeSession.box1}, namespace='/')
 
 def box2full():
-    print('Box 2 is full')
+    logging.info('Box 2 is full')
+    activeSession.box2Full = True
     socketio.emit('box2_full', {'value': activeSession.box2}, namespace='/')
 
+@socketio.on('empty_box1')
 def box1empty():
-    print('Box 1 is empty')
+    logging.info('Box 1 is empty')
+    activeSession.box1Full = False
+    socketio.emit('enable_button', namespace='/')
     socketio.emit('box1_empty', {'value': activeSession.box1}, namespace='/')
+
+@socketio.on('empty_box2')
+def box2empty():
+    logging.info('Box 2 is empty')
+    activeSession.box2Full = False
+    socketio.emit('enable_button', namespace='/')
+    socketio.emit('box2_empty', {'value': activeSession.box2}, namespace='/')
 
 @socketio.on('message_from_client')
 def handle_message(data):
@@ -72,16 +103,12 @@ def handle_start_pause():
     message = '3/100'
     activeSession.send_message(message, 'localhost', 8000)
 
-@socketio.on('get_counter_value')
-def handle_get_counter_value():
-    print('Getting counter value')
-    socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
-    socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
 
 @socketio.on('threshold')
 def update_threshold(data):
-    activeSession.threshold = data['value']
-    print(f'Threshold updated to {activeSession.threshold}')
+    activeSession.threshold = int(data['theshold'])
+    logging.info(f'Threshold updated to {activeSession.threshold}')
+    activeSession.send_message('5/'+str(activeSession.threshold), 'localhost', 8000)
 
 def handle_request(message):
     logging.info(f"Received message: {message}")
@@ -116,6 +143,7 @@ def handle_request(message):
         socketio.emit('enable_button', namespace='/')
         return "OK: Updated database"
 
+    
     # Handling error messages
     elif command_char == MALLOC:
         logging.error("Malloc error: failed to allocate memory for boxes array")

@@ -7,6 +7,8 @@ class Session:
         self.host = 'localhost'
         self.port = 5001
         self.active = False
+        self.box1Full = False
+        self.box2Full = False
         self.box1 = 0
         self.box2 = 0
         self.threshold = 100 #in grams

@@ -1,6 +1,6 @@
 /*!
- * Communication interface which defines messages for Arduino Wi-fi Connectivity
- * Should be updated with corresponding Python File
+ * Communication interface which defines messages for Arduino Wi-fi Connectivity.
+ * Should be updated with corresponding Python File.
  */
 
 #define SECRET_SSID   "planthubwifi"

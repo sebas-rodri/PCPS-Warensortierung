@@ -75,8 +75,6 @@ char *assembleData(char message, float weight) {
 void exitFunction(char error) {
     char *message = assembleData(error, 0.0);
     sendData(message);
-    TCP_client.stop();
-    exit(0);
 }
 
 
@@ -142,7 +140,10 @@ void startupScale() {
     LoadCell.start(stabilizing_time, _tare);
 
     if (LoadCell.getTareTimeoutFlag()) {            // if start up failed
-        exitFunction('s');                          // terminate program with error message
+        TCP_client.write("s/000");                  // send scale error to Raspberry Pi
+        TCP_client.flush();
+        TCP_client.stop();
+        exit(0);                                    // exit program
     }
     else {
         LoadCell.setCalFactor(calibration_value);   // else, set calibration value (float)

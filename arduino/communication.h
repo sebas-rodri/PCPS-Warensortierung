@@ -9,11 +9,12 @@
 #define PORT          8000
 
 /*---- commands ----*/
-#define RESET         (byte)0
-#define BUCKET_ONE    (byte)1
-#define BUCKET_TWO    (byte)2
-#define GET_PACKAGE   (byte)3
-#define A_THRESHOLD   (byte)5
+#define RESET               (byte)0
+#define BUCKET_ONE          (byte)1
+#define BUCKET_TWO          (byte)2
+#define GET_PACKAGE         (byte)3
+#define PACKAGE_ON_SCALE    (byte)4
+#define A_THRESHOLD         (byte)5
 
 /*---- error messages ----*/
 #define SCALE   's'     // scale error: “Timeout, check MCU>HX711 wiring and pin designations”
@@ -23,5 +24,7 @@
 
 /*---- functions ----*/
 void setUpWiFi();
-void sendData(char* message);
+
+void sendData(char *message);
+
 void receiveData();

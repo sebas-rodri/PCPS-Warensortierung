@@ -26,9 +26,7 @@ unsigned long t = 0;
 
 /*---- initialize global variables ----*/
 const float MAX_WEIGHT = 10000;  // maximal weight for the packages
-float THRESHOLD = 20;            // weight threshold for package sorting
-unsigned int NR_BOXES = 1;       // number of boxes
-int* boxes_array;                // array for storing the amount of packages
+int THRESHOLD;                   // weight threshold for package sorting
 int standard_lb = 0;             // variable for the standard value of the light barrier for one box
 int standard_lb_2 = 0;           // variable for the standard value of the light barrier for other box
 int full_box = -1;               // variable for the box status
@@ -252,31 +250,53 @@ void sendData(char* message) {
 }
 
 
-/**
- * recives Data over TCP from th Raspberry Pi
+/*!
+ * Listen for incoming connection requests on port 80 and receive messages.
  */
-void listening() {
+void receiveData() {
   WiFiClient client = server.available();
-  int i = 0;
   char message[6];
   message[5] = '\0';
 
-    if (client.available() > 0) {
-    while (i <= 5) {
+  if (client.available() > 0) {
+    for (int i = 0; i < 6; i++) {
       // read the bytes incoming from the client:
       char thisChar = client.read();
       message[i] = thisChar;
-      i++;
     }
-    Serial.println(message);
-    //aufrunf handle request mit messeg
   }
+  handleRequest(message);
 }
 
+/*!
+ * Decipher a message. Handle requests accordingly.
+ */
+void handleRequest(char* message) {
+    if (message[0] == '5') {        // if
+        assignThreshold(message);
+        loop();
+    }
+
+
+
+}
+
+/*!
+ * Declare the threshold for sorting the packages.
+ * @param message
+ */
+void assignThreshold(char* message) {
+    char weight_str[4];
+    weight_str[3] = '\0';
+    for (int i = 0; i < 3; i++) {
+        weight_str[i] = message[i+2];
+    }
+    THRESHOLD = atoi(weight_str);
+}
 
 /*!
  * After the start up, this is the function that's actually run. It runs on a loop.
  */
 void loop() {
-  listening();
+  receiveData();
 }

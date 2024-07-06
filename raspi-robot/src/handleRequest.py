@@ -21,7 +21,7 @@ class Server:
         """
         self.host = host
         self.port = port
-        #self.robot = Robot()
+        self.robot = Robot()
 
     def start_server(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -133,5 +133,5 @@ class Server:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    server = Server('192.168.1.145', 8001)
+    server = Server('localhost', 8001)
     server.start_server()

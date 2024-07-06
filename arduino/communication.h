@@ -5,7 +5,7 @@
 
 #define SECRET_SSID   "planthubwifi"
 #define SECRET_PASS   "WdBKADGBDRxefs6"
-#define IP_ADDRESS    "192.168.1.145"   // anpassen
+#define IP_ADDRESS    "192.168.1.105"   // anpassen
 #define PORT          8000
 
 /*---- commands ----*/

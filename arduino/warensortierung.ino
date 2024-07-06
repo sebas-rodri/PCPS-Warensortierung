@@ -278,7 +278,16 @@ void handleRequest(char* message) {
     }
 
 
+    if (light_barrier() == -1) {
+        //Serial.println(sorting());
+        char* message = assembleData(sorting(), scale());  // assemble string to send to raspberry pi
+        sendData(message);
+        digitalWrite(LED, HIGH);  // signal for sending
 
+        delay(10000);
+        digitalWrite(LED, LOW);
+
+    }
 }
 
 /*!

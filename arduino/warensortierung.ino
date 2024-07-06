@@ -34,6 +34,7 @@ char ssid[] = SECRET_SSID;                 // the network SSID (name), see commu
 char pass[] = SECRET_PASS;                 // the network password (use for WPA, or use as key for WEP), see communication.h
 const char* TCP_SERVER_ADDR = IP_ADDRESS;  // to this IP-address data shall be sent
 const int TCP_SERVER_PORT = PORT;          // to this port data shall be sent
+IPAddress ip(192, 168, 1, 141);
 
 WiFiServer server(80);
 WiFiClient TCP_client;
@@ -83,6 +84,8 @@ void exitFunction(char error) {
 void setUpWiFi() {
   Serial.println("Arduino: TCP CLIENT");
 
+  WiFi.config(ip);
+
   if (WiFi.status() == WL_NO_MODULE) {  // check for the Wi-Fi module
     Serial.println("Communication with WiFi module failed!");
     exit(0);  // on error terminate program
@@ -110,6 +113,7 @@ void setUpWiFi() {
   } else {
     Serial.println("Failed to connect to TCP server");  // in case of failure the program tries again before sending data in sendData
   }
+
   Serial.println(WiFi.localIP());
 }
 
@@ -120,8 +124,8 @@ void setUpWiFi() {
 void startupScale() {
   LoadCell.begin();
   //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
-  float calibration_value;                                // calibration value (see example file "Calibration.ino")
-  calibration_value = -974.2;                             // uncomment to set the calibration value in the sketch
+  float calibration_value;     // calibration value (see example file "Calibration.ino")
+  calibration_value = -974.2;  // uncomment to set the calibration value in the sketch
 
   //#if defined(ESP8266) || defined(ESP32)
   //    EEPROM.begin(512);                                      // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
@@ -214,9 +218,12 @@ char sorting() {
   float weight = scale();  // figure out weight
 
   /* actual sorting */
-  if (weight < 0 || weight > MAX_WEIGHT) { exitFunction('w'); }  // error handling
-  if (weight < THRESHOLD) { return '1'; }                        // Box 1
-  return '2';                                                    // Box 2
+  if (weight < 0 || weight > MAX_WEIGHT) {
+    sendData("w/000");
+    loop();
+  }                                        // error handling
+  if (weight < THRESHOLD) { return '1'; }  // Box 1
+  return '2';                              // Box 2
 }
 
 
@@ -225,12 +232,14 @@ char sorting() {
  * @param message
  */
 void assignThreshold(char* message) {
-    char weight_str[4];
-    weight_str[3] = '\0';
-    for (int i = 0; i < 3; i++) {
-        weight_str[i] = message[i+2];
-    }
-    THRESHOLD = atoi(weight_str);
+  char weight_str[4];
+  weight_str[3] = '\0';
+  for (int i = 0; i < 3; i++) {
+    weight_str[i] = message[i + 2];
+  }
+  THRESHOLD = atoi(weight_str);
+  Serial.print("t:");
+  Serial.println(THRESHOLD);
 }
 
 
@@ -264,7 +273,7 @@ void sendData(char* message) {
  */
 void receiveData() {
   WiFiClient client = server.available();
-  char message[6];
+  char message[6] = "9/999";
   message[5] = '\0';
 
   if (client.available() > 0) {
@@ -273,7 +282,10 @@ void receiveData() {
       char thisChar = client.read();
       message[i] = thisChar;
     }
+    Serial.print("a:");
+    Serial.println(message);
   }
+
   handleRequest(message);
 }
 
@@ -281,23 +293,25 @@ void receiveData() {
  * Decipher a message. Handle requests accordingly.
  */
 void handleRequest(char* message) {
-    /* if threshold is to be assigned, assign threshold and listen for further instructions */
-    if (message[0] == '5') {
-        assignThreshold(message);
-        loop();
-    }
+  /* if threshold is to be assigned, assign threshold and listen for further instructions */
+  if (message[0] == '5') {
+    assignThreshold(message);
 
+    loop();
+  } else if (message[0] == '4') {
     /* else */
-    lightBarrier();                                    // check the light barrier
-    char* message = assembleData(sorting(), scale());  // if boxes not full, sort the package and assemble string to send to Raspberry Pi with relevant information
-    sendData(message);
+    lightBarrier();                                      // check the light barrier
+    char* message_1 = assembleData(sorting(), scale());  // if boxes not full, sort the package and assemble string to send to Raspberry Pi with relevant information
+    sendData(message_1);
+
 
     /* signal with LED that packet is being sorted */
     digitalWrite(LED, HIGH);
     delay(10000);
     digitalWrite(LED, LOW);
-    }
+  }
 }
+
 
 
 /*!

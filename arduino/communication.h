@@ -5,7 +5,7 @@
 
 #define SECRET_SSID   "planthubwifi"
 #define SECRET_PASS   "WdBKADGBDRxefs6"
-#define IP_ADDRESS    "192.168.1.147"   // anpassen
+#define IP_ADDRESS    "192.168.1.145"   // anpassen
 #define PORT          8000
 
 /*---- commands ----*/
@@ -24,4 +24,4 @@
 /*---- functions ----*/
 void setUpWiFi();
 void sendData(char* message);
-char* receiveData();
+void receiveData();

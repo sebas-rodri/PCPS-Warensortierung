@@ -69,16 +69,6 @@ char *assembleData(char message, float weight) {
 
 
 /*!
- * Orderly shut down of the program including an error message to be sent to the Raspberry Pi.
- * @param error represents the reason for the shut down.
- */
-void exitFunction(char error) {
-    char *message = assembleData(error, 0.0);
-    sendData(message);
-}
-
-
-/*!
  * Set up the Wi-Fi connection via TCP to the Raspberry Pi.
  */
 void setUpWiFi() {
@@ -140,8 +130,7 @@ void startupScale() {
     LoadCell.start(stabilizing_time, _tare);
 
     if (LoadCell.getTareTimeoutFlag()) {            // if start up failed
-        TCP_client.write("s/000");                  // send scale error to Raspberry Pi
-        TCP_client.flush();
+        sendData("s/000");                          // send scale error to Raspberry Pi
         TCP_client.stop();
         exit(0);                                    // exit program
     }
@@ -242,8 +231,6 @@ void assignThreshold(char *message) {
         weight_str[i] = message[i + 2];
     }
     THRESHOLD = atoi(weight_str);       // convert string to integer
-    Serial.print("t:");
-    Serial.println(THRESHOLD);
 }
 
 
@@ -275,7 +262,6 @@ void sendData(char *message) {
     TCP_client.write(message);                                          // send to TCP Server (Raspberry Pi)
     free(message);
     TCP_client.flush();
-    loop();                                                             // go back to listening for commands
 }
 
 
@@ -310,6 +296,7 @@ void handleRequest(char *message) {
         lightBarrier();                                      // check the light barrier
         char *message_1 = assembleData(sorting(), scale());  // if no boxes is full, sort the package and assemble string to send to Raspberry Pi with relevant information
         sendData(message_1);
+        loop();                                              // go back to listening for Requests
     }
 }
 

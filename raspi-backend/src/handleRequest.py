@@ -8,6 +8,7 @@ RESET = '0'
 BUCKET_ONE = '1'
 BUCKET_TWO = '2'
 GET_PACKAGE = '3'
+PACKAGE_ON_SCALE = '4'
 THRESHOLD = '5'
 
 # Error messages
@@ -98,12 +99,13 @@ class PackageSortingServer:
         elif command == GET_PACKAGE:
             logging.info(f"Package transport to scale")
             self.send_message('3/000', 'localhost', 8001)
-            #TODO: SEND TO ARDUINO
+            self.send_message('4/000','192.168.1.141',80)
             return f"OK: Package transport to scale"
+        
         
         elif command == THRESHOLD:
             logging.info(f"Threshold updated to {weight}")
-            #send to arduino
+            self.send_message('5/'+weightstr,'192.168.1.141',80)
             return f"OK: Threshold updated to {weight}"
         # Handling error messages
         elif command_char == MALLOC:

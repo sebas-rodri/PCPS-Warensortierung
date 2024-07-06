@@ -198,7 +198,7 @@ void lightBarrier() {
 
 /*!
   * Sorting the package into the right box (Box 1 with least weight)
-  * @return number of box (1 or 2) or terminates program with error.
+  * @return number of box (1 or 2) or sends an error message.
   */
 char sorting() {
     /* read out the scale 20 times to get the right weight */

@@ -90,6 +90,10 @@ void setUpWiFi() {
 
     if (WiFi.status() == WL_NO_MODULE) {            // check for the Wi-Fi module
         Serial.println("Communication with WiFi module failed!");
+        /* visual output for error */
+        digitalWrite(LED, HIGH);
+        delay(5000);
+        digitalWrite(LED, LOW);
         exit(0);                                    // on error terminate program
     }
 
@@ -168,11 +172,6 @@ void setup() {
     /* start further necessities */
     setUpWiFi();
     startupScale();
-
-    /* visual output for start up */
-    digitalWrite(LED, HIGH);
-    delay(5000);
-    digitalWrite(LED, LOW);
 }
 
 
@@ -260,15 +259,22 @@ void sendData(char *message) {
             Serial.println("Reconnected to TCP server");
             TCP_client.write("0/000");                                  // send reset command to TCP server
             TCP_client.flush();
-        } else {
+        }
+        else {                                                          // on error exit program
             Serial.println("Failed to reconnect to TCP server");
-            delay(1000);
+
+            /* visual output for error */
+            digitalWrite(LED, HIGH);
+            delay(5000);
+            digitalWrite(LED, LOW);
+            exit(0);
         }
     }
 
-    TCP_client.write(message);  // send to TCP Server
+    TCP_client.write(message);                                          // send to TCP Server (Raspberry Pi)
     free(message);
     TCP_client.flush();
+    loop();                                                             // go back to listening for commands
 }
 
 
@@ -276,43 +282,33 @@ void sendData(char *message) {
  * Listen for incoming connection requests on port 80 and receive messages.
  */
 void receiveData() {
-    WiFiClient client = server.available();
-    char message[6] = "9/999";
+    char message[6] = "9/999";                  // set message string to empty (no valid command)
     message[5] = '\0';
 
-    if (client.available() > 0) {
-        for (int i = 0; i < 6; i++) {
-            // read the bytes incoming from the client:
+    WiFiClient client = server.available();     // listen for connection
+    if (client.available() > 0) {               // when data is received
+        for (int i = 0; i < 6; i++) {           // read out first six bytes received into message string
             char thisChar = client.read();
             message[i] = thisChar;
         }
         Serial.print("a:");
         Serial.println(message);
     }
-    handleRequest(message);
+    handleRequest(message);                     // handle the command received
 }
 
 /*!
- * Decipher a message. Handle requests accordingly.
+ * Decipher the message received from Raspberry Pi. Handle requests accordingly.
  */
 void handleRequest(char *message) {
-    /* if threshold is to be assigned, assign threshold and listen for further instructions */
-    if (message[0] == '5') {
-        assignThreshold(message);
-
-        loop();
-    } else if (message[0] == '4') {
-        /* else */
+    if (message[0] == '5') {            // if threshold is to be assigned
+        assignThreshold(message);       // assign threshold
+        loop();                         // and listen for further instructions
+    }
+    else if (message[0] == '4') {                            // if a packet is on the scale
         lightBarrier();                                      // check the light barrier
-        char *message_1 = assembleData(sorting(),
-                                       scale());  // if boxes not full, sort the package and assemble string to send to Raspberry Pi with relevant information
+        char *message_1 = assembleData(sorting(), scale());  // if no boxes is full, sort the package and assemble string to send to Raspberry Pi with relevant information
         sendData(message_1);
-
-
-        /* signal with LED that packet is being sorted */
-        digitalWrite(LED, HIGH);
-        delay(10000);
-        digitalWrite(LED, LOW);
     }
 }
 

@@ -49,7 +49,7 @@ WiFiClient TCP_client;                      // initialize TCP client
  */
 char *assembleData(char message, float weight) {
     int weight_int = (int) weight;                      // cast float to int
-    char *result = (char *) malloc(6 * sizeof(char))    // allocate memory for string
+    char *result = (char *) malloc(6 * sizeof(char));    // allocate memory for string
 
     if (weight_int == 0) {                              // if there is no weight
         snprintf(result, 6, "%c/000", message);

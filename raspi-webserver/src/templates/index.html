@@ -132,7 +132,14 @@
             console.log('Connected to WebSocket server');
             socket.emit('get_counter_value'); //Set current counter
             socket.emit('get_threshold');
+            socket.emit('get_if_full');
         });
+
+        socket.on('set_threshold', (data) => {
+            document.getElementById('thresholdgt').innerText = `>${data.value} gram`;
+            document.getElementById('thesholdlt').innerText = `<=${data.value} gram`;
+        });
+
 
         socket.on('message_from_server', (data) => {
             console.log('Received message from server:', data);

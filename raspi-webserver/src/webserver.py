@@ -41,6 +41,18 @@ def handle_get_counter_value():
     socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
     socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
 
+@socketio.on('get_threshold')
+def handle_get_threshold():
+    print('Getting threshold')
+    socketio.emit('set_threshold', {'value': activeSession.threshold}, namespace='/')
+
+@socketio.on('get_if_full')
+def handle_get_if_full():
+    logging.info('Getting if full')
+    if activeSession.box1Full:
+        box1full()
+    if activeSession.box2Full:
+        box2full()
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')

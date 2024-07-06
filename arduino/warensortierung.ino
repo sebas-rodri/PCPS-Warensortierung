@@ -22,14 +22,12 @@ const int HX711_dout = 6;  // mcu > HX711 dout pin
 const int HX711_sck = 7;   // mcu > HX711 sck pin
 HX711_ADC LoadCell(HX711_dout, HX711_sck);
 const int calVal_eeprom_address = 0;
-unsigned long t = 0;
 
 /*---- initialize global variables ----*/
 const float MAX_WEIGHT = 10000;  // maximal weight for the packages
 int THRESHOLD;                   // weight threshold for package sorting
 int standard_lb = 0;             // variable for the standard value of the light barrier for one box
 int standard_lb_2 = 0;           // variable for the standard value of the light barrier for other box
-int full_box = -1;               // variable for the box status
 
 /*---- initialize variables needed for Wi-Fi ----*/
 char ssid[] = SECRET_SSID;                 // the network SSID (name), see communication.h
@@ -41,8 +39,6 @@ WiFiServer server(80);
 WiFiClient TCP_client;
 
 /*____________________ Set-Up Functions ____________________*/
-
-
 
 /*!
  * Assembling a string to send to the Raspberry Pi from a message and a weight.
@@ -124,8 +120,8 @@ void setUpWiFi() {
 void startupScale() {
   LoadCell.begin();
   //LoadCell.setReverseOutput();                          // uncomment to turn a negative output value to positive
-  float calibration_value;  // calibration value (see example file "Calibration.ino")
-  calibration_value = 800;  // uncomment to set the calibration value in the sketch
+  float calibration_value;                                // calibration value (see example file "Calibration.ino")
+  calibration_value = -974.2;                             // uncomment to set the calibration value in the sketch
 
   //#if defined(ESP8266) || defined(ESP32)
   //    EEPROM.begin(512);                                      // uncomment this to use ESP8266/ESP32 and fetch the calibration value from eeprom
@@ -165,9 +161,8 @@ void setup() {
   /* start further necessities */
   setUpWiFi();
   startupScale();
-  // init THRESHOLD with data received from Raspberry Pi
 
-  /* visual output for Startup */
+  /* visual output for start up */
   digitalWrite(LED, HIGH);
   delay(5000);
   digitalWrite(LED, LOW);
@@ -192,16 +187,17 @@ float scale() {
  * Checks the light barrier.
  * @return -1 if barrier of box 1 is triggered, -2 for box 2 or 0 if none.
  */
-char lightBarrier() {
+void lightBarrier() {
   //checks first light barrier
   if ((standard_lb - analogRead(LIGHT_BARRIER)) >= SENSITIVITY_LIGHT_BARRIER) {
-    return 'l';
+    sendData("l/000");
+    loop();
   }
   //checks second light barrier
   if ((standard_lb_2 - analogRead(LIGHT_BARRIER_2)) >= SENSITIVITY_LIGHT_BARRIER) {
-    return 'L';
+    sendData("L/000");
+    loop();
   }
-  return '0';
 }
 
 
@@ -210,7 +206,6 @@ char lightBarrier() {
   * @return number of box (1 or 2) or terminates program with error
   */
 char sorting() {
-  // ???
   for (int i = 0; i <= 20; i++) {
     Serial.println(scale());
     delay(50);
@@ -222,6 +217,20 @@ char sorting() {
   if (weight < 0 || weight > MAX_WEIGHT) { exitFunction('w'); }  // error handling
   if (weight < THRESHOLD) { return '1'; }                        // Box 1
   return '2';                                                    // Box 2
+}
+
+
+/*!
+ * Declare the threshold for sorting the packages.
+ * @param message
+ */
+void assignThreshold(char* message) {
+    char weight_str[4];
+    weight_str[3] = '\0';
+    for (int i = 0; i < 3; i++) {
+        weight_str[i] = message[i+2];
+    }
+    THRESHOLD = atoi(weight_str);
 }
 
 
@@ -272,36 +281,24 @@ void receiveData() {
  * Decipher a message. Handle requests accordingly.
  */
 void handleRequest(char* message) {
-    if (message[0] == '5') {        // if
+    /* if threshold is to be assigned, assign threshold and listen for further instructions */
+    if (message[0] == '5') {
         assignThreshold(message);
         loop();
     }
 
+    /* else */
+    lightBarrier();                                    // check the light barrier
+    char* message = assembleData(sorting(), scale());  // if boxes not full, sort the package and assemble string to send to Raspberry Pi with relevant information
+    sendData(message);
 
-    if (light_barrier() == -1) {
-        //Serial.println(sorting());
-        char* message = assembleData(sorting(), scale());  // assemble string to send to raspberry pi
-        sendData(message);
-        digitalWrite(LED, HIGH);  // signal for sending
-
-        delay(10000);
-        digitalWrite(LED, LOW);
-
+    /* signal with LED that packet is being sorted */
+    digitalWrite(LED, HIGH);
+    delay(10000);
+    digitalWrite(LED, LOW);
     }
 }
 
-/*!
- * Declare the threshold for sorting the packages.
- * @param message
- */
-void assignThreshold(char* message) {
-    char weight_str[4];
-    weight_str[3] = '\0';
-    for (int i = 0; i < 3; i++) {
-        weight_str[i] = message[i+2];
-    }
-    THRESHOLD = atoi(weight_str);
-}
 
 /*!
  * After the start up, this is the function that's actually run. It runs on a loop.

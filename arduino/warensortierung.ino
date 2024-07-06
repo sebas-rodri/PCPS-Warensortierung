@@ -59,7 +59,8 @@ char* assembleData(char message, float weight) {
     snprintf(result, 6, "%c/00%d", message, weight_int);
   } else if (weight_int < 100) {  //case if the weight is less than 3 digits
     snprintf(result, 6, "%c/0%d", message, weight_int);
-  } else {
+  }
+  else {
     snprintf(result, 6, "%c/%d", message, weight_int);
   }
 

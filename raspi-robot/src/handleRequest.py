@@ -1,7 +1,21 @@
 import socket
 import logging
-from arduino_commands import *
 from robot_functions import Robot
+
+# Immutable command variables
+RESET = '0'
+BUCKET_ONE = '1'
+BUCKET_TWO = '2'
+GET_PACKAGE = '3'
+PACKAGE_ON_SCALE = '4'
+THRESHOLD = '5'
+UPDATED_DATABASE = '9'
+
+# Error messages
+SCALE = 's'   # scale error
+WEIGHT = 'w'  # weighting error
+LIGHTBOX1 = 'l'   # light barrier error
+LIGHTBOX2 = 'L'   # light barrier error
 
 # Global variables
 ip_address = '192.168.1.105'

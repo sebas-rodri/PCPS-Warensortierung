@@ -14,17 +14,15 @@ RESET = '0'
 BUCKET_ONE = '1'
 BUCKET_TWO = '2'
 GET_PACKAGE = '3'
+PACKAGE_ON_SCALE = '4'
 THRESHOLD = '5'
 UPDATED_DATABASE = '9'
 
 # Error messages
-MALLOC = 'm'  # malloc error
 SCALE = 's'   # scale error
 WEIGHT = 'w'  # weighting error
 LIGHTBOX1 = 'l'   # light barrier error
 LIGHTBOX2 = 'L'   # light barrier error
-WIFI = 'i'    # internet error
-TCP = 't'     # server error
 
 # Global variables
 ip_address = '192.168.1.105'

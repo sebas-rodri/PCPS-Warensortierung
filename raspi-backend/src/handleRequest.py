@@ -8,6 +8,7 @@ RESET = '0'
 BUCKET_ONE = '1'
 BUCKET_TWO = '2'
 GET_PACKAGE = '3'
+PACKAGE_ON_SCALE = '4'
 THRESHOLD = '5'
 
 # Error messages
@@ -97,8 +98,8 @@ class PackageSortingServer:
 
         elif command == GET_PACKAGE:
             logging.info(f"Package transport to scale")
-            #self.send_message('3/000', 'localhost', 8001)
-            self.send_message('4/'+weightstr,'192.168.1.141',80)
+            self.send_message('3/000', 'localhost', 8001)
+            self.send_message('4/000','192.168.1.141',80)
             return f"OK: Package transport to scale"
         
         elif command == THRESHOLD:
@@ -151,4 +152,3 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     server = PackageSortingServer()
     server.start_server()
-

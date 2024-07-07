@@ -3,12 +3,8 @@ import logging
 from arduino_commands import *
 from robot_functions import Robot
 
-
-RASPI_IP = '0.0.0.0'
-RASPI_PORT = 2360
-ARDUINO_IP = ''
-ARDUINO_PORT = 0
-MSG_BYTES = 0
+# Global variables
+ip_address = '192.168.1.105'
 
 class Server:
     """
@@ -115,23 +111,7 @@ class Server:
             return "ERROR: Unknown command"
 
 
-    """
-    send Data to arduino server
-    """
-    def sendData(self, message: str) -> None:
-        # Create a connection to the server application on port 81
-        tcp_socket = socket.create_connection(('localhost', 81))
-
-        try:
-            data = str.encode(message)
-            tcp_socket.sendall(data)
-
-        finally:
-            print("Closing socket")
-            tcp_socket.close()
-
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    server = Server('192.168.1.147', 8001)
+    server = Server(ip_address, 8001)
     server.start_server()

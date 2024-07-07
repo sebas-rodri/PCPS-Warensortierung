@@ -43,7 +43,7 @@ build_backend:
 build_webserver:
   stage: build
   script:
-    - cd raspi-robot
+    - cd raspi-webserver
     - docker build -t $CI_REGISTRY_IMAGE/webserver:latest -f Dockerfile .
     - docker push $CI_REGISTRY_IMAGE/webserver:latest
   only:

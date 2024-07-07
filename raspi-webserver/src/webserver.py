@@ -175,7 +175,7 @@ def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip_address, 5001))
         s.listen()
-        logging.info(f"Server started and listening on 192.168.1.147:5001")
+        logging.info(f"Server started and listening on {ip_address}:5001")
 
         while True:
             conn, addr = s.accept()

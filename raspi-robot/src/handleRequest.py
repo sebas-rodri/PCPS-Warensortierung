@@ -95,11 +95,6 @@ class Server:
             self.robot.get_package()
             return f"OK: Sent request to get package"
 
-        # Handling error messages
-        elif command_char == MALLOC:
-            logging.error("Malloc error: failed to allocate memory for boxes array")
-            return "ERROR: Malloc error"
-
         elif command_char == SCALE:
             logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
             return "ERROR: Scale error"
@@ -108,24 +103,12 @@ class Server:
             logging.error("Weight error: package weights too little or too much")
             return "ERROR: Weight error"
 
-        elif command_char == LIGHT:
-            logging.error("Light barrier error: the light barrier was triggered")
-            return "ERROR: Light barrier error"
-
-        elif command_char == WIFI:
-            logging.error("WiFi error: communication with WiFi module failed")
-            return "ERROR: WiFi error"
-
-        elif command_char == TCP:
-            logging.error("TCP error: failed to connect to TCP server")
-            return "ERROR: TCP error"
-
         else:
             logging.error("Unknown command")
             return "ERROR: Unknown command"
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     server = Server(ip_address, 8001)
     server.start_server()

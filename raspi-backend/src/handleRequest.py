@@ -59,10 +59,6 @@ class PackageSortingServer:
     def handle_request(self, message):
         logging.info(f"Received message: {message}")
 
-        if message == 'get_data':
-            raise NotImplementedError("get_data not implemented")
-            # TODO SEND DATA FROM DATABASE
-
         if len(message) < 5 or message[1] != '/':
             logging.error("Invalid message format")
             return "ERROR: Invalid message format"
@@ -108,12 +104,8 @@ class PackageSortingServer:
             logging.info(f"Threshold updated to {weight}")
             self.send_message('5/'+weightstr,'192.168.1.141',80)
             return f"OK: Threshold updated to {weight}"
-        # Handling error messages
-        elif command_char == MALLOC:
-            logging.error("Malloc error: failed to allocate memory for boxes array")
-            self.send_message('m/000', ip_address, 5001)
-            return "ERROR: Malloc error"
 
+        # Handling error messages
         elif command_char == SCALE:
             logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
             self.send_message('s/000', ip_address, 5001)
@@ -134,16 +126,6 @@ class PackageSortingServer:
             logging.error("Light barrier error: the light barrier was triggered")
             self.send_message('L/000', ip_address, 5001)
             return "ERROR: Light barrier error"
-
-        elif command_char == WIFI:
-            logging.error("WiFi error: communication with WiFi module failed")
-            self.send_message('i/000', ip_address, 5001)
-            return "ERROR: WiFi error"
-
-        elif command_char == TCP:
-            logging.error("TCP error: failed to connect to TCP server")
-            self.send_message('t/000', ip_address, 5001)
-            return "ERROR: TCP error"
 
         else:
             logging.error("Unknown command")

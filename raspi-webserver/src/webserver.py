@@ -134,7 +134,6 @@ def handle_request(message):
         return "ERROR: Invalid command or weight"
 
     if command == UPDATED_DATABASE:
-        # TODO GET NEW DATA FROM DATABASE
         logging.info(f"Received updated database: {message}")
         # response = activeSession.send_message('get_data', 'localhost', 8000)
         if weight > activeSession.threshold:
@@ -147,13 +146,8 @@ def handle_request(message):
         print(weight,activeSession.threshold)
         socketio.emit('enable_button', namespace='/')
         return "OK: Updated database"
-
     
     # Handling error messages
-    elif command_char == MALLOC:
-        logging.error("Malloc error: failed to allocate memory for boxes array")
-        return "ERROR: Malloc error"
-
     elif command_char == SCALE:
         logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
         return "ERROR: Scale error"
@@ -171,14 +165,6 @@ def handle_request(message):
         logging.error("Light barrier error: the light barrier was triggered")
         box2full()
         return "ERROR: Light barrier error"
-
-    elif command_char == WIFI:
-        logging.error("WiFi error: communication with WiFi module failed")
-        return "ERROR: WiFi error"
-
-    elif command_char == TCP:
-        logging.error("TCP error: failed to connect to TCP server")
-        return "ERROR: TCP error"
 
     else:
         logging.error("Unknown command")

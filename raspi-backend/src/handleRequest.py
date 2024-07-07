@@ -20,9 +20,12 @@ LIGHTBOX2 = 'L'   # light barrier error
 WIFI = 'i'    # internet error
 TCP = 't'     # server error
 
+# Global variables
+ip_address = '192.168.1.105'
+
 
 class PackageSortingServer:
-    def __init__(self, host='192.168.1.147', port=8000):
+    def __init__(self, host=ip_address, port=8000):
         self.host = host
         self.port = port
         self.db_manager = DatabaseManager('database.db')
@@ -80,26 +83,26 @@ class PackageSortingServer:
 
         if command == RESET:
             logging.info("Reset command received - relayed and no action taken")
-            self.send_message('0/000', '192.168.1.147', 8001)
+            self.send_message('0/000', ip_address, 8001)
             return "OK: Reset command"
 
         elif command == BUCKET_ONE:
             logging.info(f"Package sorted to bucket 1 with weight {weight}")
             self.db_manager.set(weight, 1)
-            self.send_message('1/'+weightstr, '192.168.1.147', 8001)
-            self.send_message('9/'+weightstr, '192.168.1.147', 5001)
+            self.send_message('1/'+weightstr, ip_address, 8001)
+            self.send_message('9/'+weightstr, ip_address, 5001)
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
             logging.info(f"Package sorted to bucket 2 with weight {weight}")
             self.db_manager.set(weight, 2)
-            self.send_message('2/'+weightstr, '192.168.1.147', 8001)
-            self.send_message('9/'+weightstr, '192.168.1.147', 5001)
+            self.send_message('2/'+weightstr, ip_address, 8001)
+            self.send_message('9/'+weightstr, ip_address, 5001)
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         elif command == GET_PACKAGE:
             logging.info(f"Package transport to scale")
-            self.send_message('3/000', '192.168.1.147', 8001)
+            self.send_message('3/000', ip_address, 8001)
             self.send_message('4/000','192.168.1.141',80)
             return f"OK: Package transport to scale and 4/000 send to arduino"
         
@@ -110,38 +113,38 @@ class PackageSortingServer:
         # Handling error messages
         elif command_char == MALLOC:
             logging.error("Malloc error: failed to allocate memory for boxes array")
-            self.send_message('m/000', '192.168.1.147', 5001)
+            self.send_message('m/000', ip_address, 5001)
             return "ERROR: Malloc error"
 
         elif command_char == SCALE:
             logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
-            self.send_message('s/000', '192.168.1.147', 5001)
+            self.send_message('s/000', ip_address, 5001)
             return "ERROR: Scale error"
 
         elif command_char == WEIGHT:
             logging.error("Weight error: package weighs too little or too much")
-            self.send_message('w/000', '192.168.1.147', 5001)
+            self.send_message('w/000', ip_address, 5001)
             return "ERROR: Weight error"
 
         elif command_char == LIGHTBOX1:
             logging.error("Light barrier error: the light barrier was triggered")
-            self.send_message('l/000', '192.168.1.147', 5001)
+            self.send_message('l/000', ip_address, 5001)
             
             return "ERROR: Light barrier error"
         
         elif command_char == LIGHTBOX2:
             logging.error("Light barrier error: the light barrier was triggered")
-            self.send_message('L/000', '192.168.1.147', 5001)
+            self.send_message('L/000', ip_address, 5001)
             return "ERROR: Light barrier error"
 
         elif command_char == WIFI:
             logging.error("WiFi error: communication with WiFi module failed")
-            self.send_message('i/000', '192.168.1.147', 5001)
+            self.send_message('i/000', ip_address, 5001)
             return "ERROR: WiFi error"
 
         elif command_char == TCP:
             logging.error("TCP error: failed to connect to TCP server")
-            self.send_message('t/000', '192.168.1.147', 5001)
+            self.send_message('t/000', ip_address, 5001)
             return "ERROR: TCP error"
 
         else:

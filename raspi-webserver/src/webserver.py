@@ -26,6 +26,8 @@ LIGHTBOX2 = 'L'   # light barrier error
 WIFI = 'i'    # internet error
 TCP = 't'     # server error
 
+# Global variables
+ip_address = '192.168.1.105'
 
 @app.route('/')
 def index():
@@ -101,7 +103,7 @@ def handle_message(data):
 def handle_start_pause():
     activeSession.start_pause()
     message = '3/100'
-    activeSession.send_message(message, '192.168.1.147', 8000)
+    activeSession.send_message(message, ip_address, 8000)
 
 
 @socketio.on('threshold')
@@ -113,7 +115,7 @@ def update_threshold(data):
         thresholdstr = '5/00' + str(activeSession.threshold)
     elif activeSession.threshold < 100:
         thresholdstr = '5/0' + str(activeSession.threshold)
-    activeSession.send_message(thresholdstr, '192.168.1.147', 8000)
+    activeSession.send_message(thresholdstr, ip_address, 8000)
 
 def handle_request(message):
     logging.info(f"Received message: {message}")
@@ -187,7 +189,7 @@ def handle_request(message):
 
 def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('192.168.1.147', 5001))
+        s.bind((ip_address, 5001))
         s.listen()
         logging.info(f"Server started and listening on 192.168.1.147:5001")
 
@@ -206,6 +208,6 @@ if __name__ == '__main__':
     activeSession = Session()
     thread = threading.Thread(target=start_server)
     thread.start()
-    socketio.run(app, debug=False, host='192.168.1.147', port=4999, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=False, host=ip_address, port=4999, allow_unsafe_werkzeug=True)
 
 

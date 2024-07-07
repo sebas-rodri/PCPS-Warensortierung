@@ -21,7 +21,7 @@ TCP = 't'     # server error
 
 
 class PackageSortingServer:
-    def __init__(self, host='localhost', port=8000):
+    def __init__(self, host='192.168.1.145', port=8000):
         self.host = host
         self.port = port
         self.db_manager = DatabaseManager('database.db')
@@ -97,13 +97,13 @@ class PackageSortingServer:
 
         elif command == GET_PACKAGE:
             logging.info(f"Package transport to scale")
-            self.send_message('3/000', 'localhost', 8001)
-            #TODO: SEND TO ARDUINO
+            #self.send_message('3/000', 'localhost', 8001)
+            self.send_message('4/'+weightstr,'192.168.1.141',80)
             return f"OK: Package transport to scale"
         
         elif command == THRESHOLD:
             logging.info(f"Threshold updated to {weight}")
-            #send to arduino
+            self.send_message('5/'+weightstr,'192.168.1.141',80)
             return f"OK: Threshold updated to {weight}"
         # Handling error messages
         elif command_char == MALLOC:
@@ -151,3 +151,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     server = PackageSortingServer()
     server.start_server()
+

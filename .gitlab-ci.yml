@@ -39,6 +39,7 @@ build_backend:
   only:
     - develop
     - main
+    - release/1.0.0
 
 build_webserver:
   stage: build
@@ -49,3 +50,4 @@ build_webserver:
   only:
     - develop
     - main
+    - release/1.0.0

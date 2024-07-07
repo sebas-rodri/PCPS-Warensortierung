@@ -18,8 +18,6 @@ This project automates goods reception using a robotic arm. Packages are classif
 - Sorts packages by weight.
 - When a package is placed in the goods receiving area (scale), the weight is recorded at the press of a button, and the package is sorted.
 
----
-
 ## Set Up
 1.    WLAN-Router einschalten
 2.    LAN-Kabel an Raspberry Pi anschließen

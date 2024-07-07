@@ -22,7 +22,7 @@ TCP = 't'     # server error
 
 
 class PackageSortingServer:
-    def __init__(self, host='192.168.1.145', port=8000):
+    def __init__(self, host='192.168.1.105', port=8000):
         self.host = host
         self.port = port
         self.db_manager = DatabaseManager('database.db')
@@ -100,7 +100,7 @@ class PackageSortingServer:
             logging.info(f"Package transport to scale")
             self.send_message('3/000', 'localhost', 8001)
             self.send_message('4/000','192.168.1.141',80)
-            return f"OK: Package transport to scale"
+            return f"OK: Package transport to scale and 4/000 send to arduino"
         
         elif command == THRESHOLD:
             logging.info(f"Threshold updated to {weight}")

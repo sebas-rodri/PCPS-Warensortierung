@@ -1,7 +1,7 @@
 import socket
 import time
 
-def send_message_to_server(message, server_address=('localhost', 8000)):
+def send_message_to_server(message, server_address=('192.168.1.105', 8001)):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # Send message to server
         s.connect(server_address)

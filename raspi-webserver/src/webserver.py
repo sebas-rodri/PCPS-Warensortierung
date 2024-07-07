@@ -182,9 +182,9 @@ def handle_request(message):
 
 def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('localhost', 5001))
+        s.bind(('192.168.1.105', 5001))
         s.listen()
-        logging.info(f"Server started and listening on localhost:5001")
+        logging.info(f"Server started and listening on 192.168.1.105:5001")
 
         while True:
             conn, addr = s.accept()

@@ -133,5 +133,5 @@ class Server:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    server = Server('localhost', 8001)
+    server = Server('192.168.1.105', 8001)
     server.start_server()

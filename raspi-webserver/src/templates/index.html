@@ -117,7 +117,7 @@
         <input type="text" id="messageInput" placeholder="Enter Threshold">
     </div>
     <div class="threshold">
-        <button onclick="sendThreshold()" class="buttonblue">Change Threshold</button>
+        <button onclick="sendThreshold()" class="buttonblue" id = "buttonthreshold" disabled>Change Threshold</button>
     </div>
     
     
@@ -135,6 +135,7 @@
         const socket = io();
         var button = document.getElementById('button');
         button.disabled = false;
+        document.getElementById('buttonthreshold').disabled = false;
         let box1counter = 0; //function to get current value of box1
         let box2counter = 0;
         socket.on('connect', () => {
@@ -264,6 +265,7 @@
             else{
                 document.getElementById('button').innerText = 'Wait For Robot';
                 document.getElementById('button').disabled = true;
+                document.getElementById('buttonthreshold').disabled = true;
                 document.getElementById('button').className = 'buttonred';
             }
             socket.emit('start/pause');
@@ -271,6 +273,7 @@
 
         socket.on('enable_button', () => {
             document.getElementById('button').disabled = false;
+            document.getElementById('buttonthreshold').disabled = false;
             document.getElementById('button').innerText = 'Pickup';
             document.getElementById('button').className = 'buttonblue';
         });

@@ -136,8 +136,8 @@
         var button = document.getElementById('button');
         button.disabled = false;
         document.getElementById('buttonthreshold').disabled = false;
-        document.getElementById('emptybox1').disabled = false;
-        document.getElementById('emptybox2').disabled = false;
+        document.getElementById('empty1').disabled = false;
+        document.getElementById('empty2').disabled = false;
         let box1counter = 0; //function to get current value of box1
         let box2counter = 0;
         socket.on('connect', () => {
@@ -268,8 +268,8 @@
                 document.getElementById('button').innerText = 'Wait For Robot';
                 document.getElementById('button').disabled = true;
                 document.getElementById('buttonthreshold').disabled = true;
-                document.getElementById('emptybox1').disabled = true;
-                document.getElementById('emptybox2').disabled = true;
+                document.getElementById('empty1').disabled = true;
+                document.getElementById('empty2').disabled = true;
                 document.getElementById('button').className = 'buttonred';
             }
             socket.emit('start/pause');
@@ -278,8 +278,8 @@
         socket.on('enable_button', () => {
             document.getElementById('button').disabled = false;
             document.getElementById('buttonthreshold').disabled = false;
-            document.getElementById('emptybox1').disabled = false;
-            document.getElementById('emptybox2').disabled = false;
+            document.getElementById('empty1').disabled = false;
+            document.getElementById('empty2').disabled = false;
             document.getElementById('button').innerText = 'Pickup';
             document.getElementById('button').className = 'buttonblue';
         });

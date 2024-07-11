@@ -299,6 +299,8 @@ def handle_request(message):
 
     elif command_char == WEIGHT:
         logging.error("Weight error: package weights too little or too much")
+        socketio.emit('weight_error', namespace='/')
+        socketio.emit('enable_button', namespace='/')
         return "ERROR: Weight error"
 
     elif command_char == LIGHTBOX1:

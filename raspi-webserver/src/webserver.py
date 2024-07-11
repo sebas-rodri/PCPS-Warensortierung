@@ -32,9 +32,8 @@ ip_address = '192.168.1.105'
 @app.route('/')
 def index():
     """
-    Renders website.
-    @return: rendered website.
-    @rtype: object
+    Renders a website.
+    @return: The rendered website.
     """
     return render_template('index.html')
 

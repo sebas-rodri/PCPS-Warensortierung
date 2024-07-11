@@ -27,27 +27,78 @@ LIGHTBOX2 = 'L'   # light barrier error
 # Global variables
 ip_address = '192.168.1.105'
 
+############################################
+# SocketIO event handlers
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @socketio.on('connect')
 def handle_connect():
-    print('Client connected')
+    """
+    Handles the connection with a client.
+
+    This function is called when a client connects to the server.
+    It prints a message indicating that a client has connected.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+    logging.info('Client connected')
 
 @socketio.on('get_counter_value')
 def handle_get_counter_value():
-    print('Getting counter value')
+    """
+    Handles the retrieval of counter values and emits them to the clients.
+
+    This function retrieves the values of the counters from the active session
+    and emits them to the clients using the socketio library.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+    logging.info('Getting counter value')
     socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
     socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
 
 @socketio.on('get_threshold')
 def handle_get_threshold():
-    print('Getting threshold')
+    """
+    Handles the GET request for retrieving the threshold value.
+
+    Emits the threshold value to the client using the 'set_threshold' event.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+    logging.info('Getting threshold')
     socketio.emit('set_threshold', {'value': activeSession.threshold}, namespace='/')
 
 @socketio.on('get_if_full')
 def handle_get_if_full():
+    """
+    Handles the GET request to check if the boxes are full.
+    
+    This function checks if the boxes (box1 and box2) are full in the active session.
+    If box1 is full, it calls the `box1full` function.
+    If box2 is full, it calls the `box2full` function.
+    
+     Parameters:
+        None
+
+    Returns:
+        None
+    """
     logging.info('Getting if full')
     if activeSession.box1Full:
         box1full()
@@ -55,30 +106,25 @@ def handle_get_if_full():
         box2full()
 @socketio.on('disconnect')
 def handle_disconnect():
-    print('Client disconnected')
+    """
+    Handles the event when a client disconnects from the server.
+    """
+    logging.info('Client disconnected')
 
-def increment(box):
-    print(f'Incrementing {box}')
-    if box == 'box1':
-        activeSession.increment_box1()
-        print(activeSession)
-        socketio.emit('update_counter1',namespace='/', data={'value': activeSession.box1})
-    elif box == 'box2':
-        activeSession.increment_box2()
-        socketio.emit('update_counter2', {'value': activeSession.box2},namespace='/')
-
-def box1full():
-    logging.info('Box 1 is full')
-    activeSession.box1Full = True
-    socketio.emit('box1_full', {'value': activeSession.box1}, namespace='/')
-
-def box2full():
-    logging.info('Box 2 is full')
-    activeSession.box2Full = True
-    socketio.emit('box2_full', {'value': activeSession.box2}, namespace='/')
 
 @socketio.on('empty_box1')
 def box1empty():
+    """
+    Marks Box 1 as empty and emits events to update the client-side UI.
+
+    This function sets the `box1Full` attribute of the `activeSession` object to False,
+    indicating that Box 1 is empty. It then emits two events using the `socketio` object:
+    - 'enable_button': Enables a button on the client-side UI.
+    - 'box1_empty': Sends a dictionary with the value of `activeSession.box1` to update the client-side UI.
+
+    Note: This function assumes that the `activeSession` and `socketio` objects are already defined.
+
+    """
     logging.info('Box 1 is empty')
     activeSession.box1Full = False
     socketio.emit('enable_button', namespace='/')
@@ -86,6 +132,16 @@ def box1empty():
 
 @socketio.on('empty_box2')
 def box2empty():
+    """
+    Marks Box 2 as empty and emits events to update the client-side UI.
+
+    This function sets the `box2Full` attribute of the `activeSession` object to False,
+    indicating that Box 2 is now empty. It then emits two events using the `socketio`
+    object to update the client-side UI. The first event, 'enable_button', enables a
+    button on the UI, and the second event, 'box2_empty', sends the updated value of
+    `activeSession.box2` to the client.
+
+    """
     logging.info('Box 2 is empty')
     activeSession.box2Full = False
     socketio.emit('enable_button', namespace='/')
@@ -93,12 +149,22 @@ def box2empty():
 
 @socketio.on('message_from_client')
 def handle_message(data):
-    print(f'Message from client: {data}')
+    logging.info(f'Message from client: {data}')
     # Process the message and optionally emit back to the client
     socketio.emit('message_from_server', {'response': 'Message received'})
 
+
 @socketio.on('start/pause')
 def handle_start_pause():
+    """
+    Handles the Pickup button event.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
     activeSession.start_pause()
     message = '3/100'
     activeSession.send_message(message, ip_address, 8000)
@@ -106,6 +172,16 @@ def handle_start_pause():
 
 @socketio.on('threshold')
 def update_threshold(data):
+    """
+    Updates the threshold value for the active session.
+
+    Args:
+        data: SocketIO event data containing the new threshold value.
+
+    Returns:
+        None
+
+    """
     activeSession.threshold = int(data['theshold'])
     logging.info(f'Threshold updated to {activeSession.threshold}')
     thresholdstr = '5/' + str(activeSession.threshold)
@@ -115,7 +191,76 @@ def update_threshold(data):
         thresholdstr = '5/0' + str(activeSession.threshold)
     activeSession.send_message(thresholdstr, ip_address, 8000)
 
+############################################
+# Server functions
+
+def increment(box):
+    """
+    Increments the counter for the specified box and emits an update event.
+
+    Args:
+        box (str): The name of the box to increment ('box1' or 'box2').
+
+    Returns:
+        None
+    """
+    logging.info(f'Incrementing {box}')
+    if box == 'box1':
+        activeSession.increment_box1()
+        logging.info(activeSession)
+        socketio.emit('update_counter1', namespace='/', data={'value': activeSession.box1})
+    elif box == 'box2':
+        activeSession.increment_box2()
+        socketio.emit('update_counter2', {'value': activeSession.box2}, namespace='/')
+
+
+
+def box1full():
+    """
+    This function is called when Box 1 is full.
+    It logs the event, updates the `box1Full` flag in the active session, and emits a socketio event to notify the clients.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
+    logging.info('Box 1 is full')
+    activeSession.box1Full = True
+    socketio.emit('box1_full', {'value': activeSession.box1}, namespace='/')
+
+def box2full():
+    """
+    Sets the 'box2Full' flag to True and emits a socketio event indicating that Box 2 is full.
+
+    This function is called when Box 2 is detected to be full.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+    logging.info('Box 2 is full')
+    activeSession.box2Full = True
+    socketio.emit('box2_full', {'value': activeSession.box2}, namespace='/')
+
+
 def handle_request(message):
+    """
+    Handles the incoming request message and performs the necessary actions based on the command and weight.
+
+    Args:
+        message (str): The incoming request message.
+
+    Returns:
+        str: The response message indicating the result of the request.
+
+    Raises:
+        ValueError: If the command or weight is invalid.
+
+    """
     logging.info(f"Received message: {message}")
 
     if len(message) < 5 or message[1] != '/':
@@ -143,7 +288,7 @@ def handle_request(message):
         else:
             increment('box1')
         # handle_get_counter_value()
-        print(weight,activeSession.threshold)
+        logging.info(weight,activeSession.threshold)
         socketio.emit('enable_button', namespace='/')
         return "OK: Updated database"
     
@@ -172,6 +317,15 @@ def handle_request(message):
 
 
 def start_server():
+    """
+    Listens for incoming connections.
+
+    The server binds to the specified IP address and port 5001. It accepts incoming connections,
+    receives data from the client, and sends a response back.
+
+    Returns:
+        None
+    """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip_address, 5001))
         s.listen()

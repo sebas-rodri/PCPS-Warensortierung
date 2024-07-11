@@ -4,7 +4,7 @@ import wlkata_mirobot
 POSITION_SCALE = (70, -230, 50)
 POSITION_BOX_1 = (50, 240, 100)
 POSITION_BOX_2 = (-55, 210, 100)
-POSITION_INPUT_BOX = (200, -150, 20)
+POSITION_INPUT_BOX = (200, -150, 18)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):
@@ -98,6 +98,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2])
         # Pickup Box
         self.pump_suction()
+        time.sleep(1)
         # Move Up
         self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2] + 100)
         # Move to scale
@@ -106,3 +107,5 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         # Release Item
         self.pump_blowing()
         self.pump_off()
+        # Move up
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)

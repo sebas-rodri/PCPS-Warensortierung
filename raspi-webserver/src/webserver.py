@@ -20,14 +20,13 @@ THRESHOLD = '5'
 UPDATED_DATABASE = '9'
 
 # Error messages
-SCALE = 's'  # scale error
+SCALE = 's'   # scale error
 WEIGHT = 'w'  # weighting error
-LIGHTBOX1 = 'l'  # light barrier error
-LIGHTBOX2 = 'L'  # light barrier error
+LIGHTBOX1 = 'l'   # light barrier error
+LIGHTBOX2 = 'L'   # light barrier error
 
 # Global variables
 ip_address = '192.168.1.105'
-
 
 @app.route('/')
 def index():

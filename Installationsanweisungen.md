@@ -1,15 +1,15 @@
 # Installationsanweisungen
 
-# Arduino
+## Arduino
 
-## Benötigt
+### Benötigt
 
 - PC
 - Arduino IDE ([https://www.arduino.cc/en/software](https://www.arduino.cc/en/software)) auf dem PC
 - Arduino Uno R4 WiFi
 - USB-Kabel
 
-## Installation
+### Installation
 
 1. Öffnen der Arduino IDE
 2. Verbinden des Arduino mit PC über USB-Kabel
@@ -22,14 +22,14 @@
     - `Ultrasonic` von Erick Simoes
 5. Lade `warensortierung.ino` unter **Sketch > Upload** oder mit Ctrl+U hoch (achte darauf, dass `communication.h` im gleichen Ordner wie `warensortierung.ino` ist)
 
-# Raspberry Pi
+## Raspberry Pi
 
-## Benötigt
+### Benötigt
 
 - PC
 - Raspberry Pi 5
 
-## Installation
+### Installation
 
 1. Raspberry Pi an den Strom anschließen
 2. Installieren des Raspberry Pi OS. Weitere Informationen dazu: [https://www.raspberrypi.com/software/](https://www.raspberrypi.com/software/)

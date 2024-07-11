@@ -266,6 +266,22 @@ void sendData(char *message) {
  * Listen for incoming connection requests on port 80 and receive messages.
  */
 void receiveData() {
+  int light = lightBarrier();
+  if (light == -1)
+  {
+    char *message_1 = assembleData('l', 0);
+    sendData(message_1);
+    delay(500);
+    return;
+  }
+  else if (light == -2)
+  {
+    char *message_1 = assembleData('L', 0);
+    sendData(message_1);
+    delay(500);
+    return;
+  }
+  
 
   char message[6] = "9/999";  // set message string to empty (no valid command)
   message[5] = '\0';

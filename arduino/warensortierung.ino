@@ -25,7 +25,7 @@ const int calVal_eeprom_address = 0;
 
 /*---- initialize global variables ----*/
 const float MAX_WEIGHT = 500;  // maximal weight for the packages
-int THRESHOLD = 100;                   // weight threshold for package sorting
+int THRESHOLD = 50;                   // weight threshold for package sorting
 int STANDARD_LB = 0;             // variable for the standard value of the light barrier for one box
 int STANDARD_LB_2 = 0;           // variable for the standard value of the light barrier for other box
 

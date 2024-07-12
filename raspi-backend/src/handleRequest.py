@@ -25,8 +25,8 @@ PORT_WEBSERVER = 5001
 PORT_BACKEND = 8000
 PORT_ROBOT = 8001
 
-light_counter_1 = 0
-light_counter_2 = 0
+light_counter1 = 0
+light_counter2 = 0
 
 class PackageSortingServer:
     def __init__(self, host=ip_address, port=8000):

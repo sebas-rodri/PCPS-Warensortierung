@@ -89,6 +89,8 @@ class PackageSortingServer:
         :return: Success or error message.
         :rtype: str
         """
+        global light_counter1
+        global light_counter2
         logging.info(f"Received message: {message}")
 
         if len(message) < 5 or message[1] != '/':
@@ -117,8 +119,8 @@ class PackageSortingServer:
             self.db_manager.set(weight, 1)
             self.send_message('1/'+weightstr, ip_address, PORT_ROBOT)
             self.send_message('9/'+weightstr, ip_address, PORT_WEBSERVER)
-            light_counter_1 = 0
-            light_counter_2 = 0
+            light_counter1 = 0
+            light_counter2 = 0
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
@@ -126,8 +128,8 @@ class PackageSortingServer:
             self.db_manager.set(weight, 2)
             self.send_message('2/'+weightstr, ip_address, PORT_ROBOT)
             self.send_message('9/'+weightstr, ip_address, PORT_WEBSERVER)
-            light_counter_1 = 0
-            light_counter_2 = 0
+            light_counter1 = 0
+            light_counter2 = 0
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         elif command == GET_PACKAGE:

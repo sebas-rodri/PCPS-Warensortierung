@@ -25,7 +25,7 @@ const int calVal_eeprom_address = 0;
 
 /*---- initialize global variables ----*/
 const float MAX_WEIGHT = 500;  // maximal weight for the packages
-int THRESHOLD = 50;                   // weight threshold for package sorting
+float THRESHOLD = 50.0;                   // weight threshold for package sorting
 int STANDARD_LB = 0;             // variable for the standard value of the light barrier for one box
 int STANDARD_LB_2 = 0;           // variable for the standard value of the light barrier for other box
 
@@ -230,7 +230,7 @@ void assignThreshold(char *message) {
   for (int i = 0; i < 3; i++) {  // copy threshold from message to own string
     weight_str[i] = message[i + 2];
   }
-  THRESHOLD = atoi(weight_str);  // convert string to integerS
+  THRESHOLD = float(atoi(weight_str));  // convert string to integerS
   Serial.print("t:");
   Serial.println(THRESHOLD);
 }

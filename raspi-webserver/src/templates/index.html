@@ -277,6 +277,10 @@
             socket.emit('start/pause');
         }
 
+        socket.on('weight_error', () => {
+            alert('It seems that no package is on the scale. Make sure that a package in in the sorting Box!');
+        });
+
         socket.on('enable_button', () => {
             document.getElementById('button').disabled = false;
             document.getElementById('buttonthreshold').disabled = false;

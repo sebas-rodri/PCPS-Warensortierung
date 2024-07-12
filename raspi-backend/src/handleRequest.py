@@ -25,6 +25,9 @@ PORT_WEBSERVER = 5001
 PORT_BACKEND = 8000
 PORT_ROBOT = 8001
 
+light_counter_1 = 0
+light_counter_2 = 0
+
 class PackageSortingServer:
     def __init__(self, host=ip_address, port=8000):
         """
@@ -114,6 +117,8 @@ class PackageSortingServer:
             self.db_manager.set(weight, 1)
             self.send_message('1/'+weightstr, ip_address, PORT_ROBOT)
             self.send_message('9/'+weightstr, ip_address, PORT_WEBSERVER)
+            light_counter_1 = 0
+            light_counter_2 = 0
             return f"OK: Package sorted to bucket 1 with weight {weight}"
 
         elif command == BUCKET_TWO:
@@ -121,6 +126,8 @@ class PackageSortingServer:
             self.db_manager.set(weight, 2)
             self.send_message('2/'+weightstr, ip_address, PORT_ROBOT)
             self.send_message('9/'+weightstr, ip_address, PORT_WEBSERVER)
+            light_counter_1 = 0
+            light_counter_2 = 0
             return f"OK: Package sorted to bucket 2 with weight {weight}"
 
         elif command == GET_PACKAGE:
@@ -147,13 +154,16 @@ class PackageSortingServer:
 
         elif command_char == LIGHTBOX1:
             logging.error("Light barrier error: the light barrier was triggered")
-            self.send_message('l/000', ip_address, PORT_WEBSERVER)
-            
+            light_counter1 += 1
+            if light_counter1 >= 2:
+                self.send_message('l/000', ip_address, PORT_WEBSERVER)
             return "ERROR: Light barrier error"
 
         elif command_char == LIGHTBOX2:
             logging.error("Light barrier error: the light barrier was triggered")
-            self.send_message('L/000', ip_address, PORT_WEBSERVER)
+            light_counter2 += 1
+            if light_counter2 >= 2:
+                self.send_message('L/000', ip_address, PORT_WEBSERVER)
             return "ERROR: Light barrier error"
 
         else:

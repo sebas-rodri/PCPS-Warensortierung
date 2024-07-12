@@ -344,7 +344,7 @@ def start_server():
         None
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((ip_address, PORT_WEBSITE))
+        s.bind((ip_address, PORT_WEBSERVER))
         s.listen()
         logging.info(f"Server started and listening on {ip_address}:5001")
 

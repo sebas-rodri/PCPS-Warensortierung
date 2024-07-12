@@ -209,8 +209,9 @@ char sorting() {
   float weight = scale();  // read out the scale
 
   /* error handling */
-  if (weight <= 0 || weight > MAX_WEIGHT) {
-    sendData("w/000");  // send error message to Raspberry Pi and listen for further instruction
+  if (weight <= 5.0 || weight > MAX_WEIGHT) {
+    char *message_1 = assembleData('w', 0);
+    sendData(message_1);  // send error message to Raspberry Pi and listen for further instruction
     return -1;
   }
   /* actual sorting */
@@ -271,14 +272,14 @@ void receiveData() {
   {
     char *message_1 = assembleData('l', 0);
     sendData(message_1);
-    delay(500);
+    delay(2000);
     return;
   }
   else if (light == -2)
   {
     char *message_1 = assembleData('L', 0);
     sendData(message_1);
-    delay(500);
+    delay(2000);
     return;
   }
   

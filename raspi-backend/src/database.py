@@ -1,15 +1,15 @@
 import sqlite3
 import logging
 
+
 class DatabaseManager:
     """Manages SQLite database operations."""
 
     def __init__(self, db_name):
         """
         Initializes the DatabaseManager instance with a SQLite database connection.
-
-        Args:
-            db_name (str): The name of the SQLite database file.
+        @param db_name: The name of the SQLite database file.
+        @type db_name: str
         """
         try:
             self.conn = sqlite3.connect(db_name)
@@ -21,10 +21,10 @@ class DatabaseManager:
             logging.exception(f"Error connecting to database: {e}")
             self.conn = None
             self.cursor = None
-    
+
     def createTables(self):
         """
-        Creates tables.
+        Creates the following tables:
         packets: packets that are currently in a box, before emptying
         archive: history of all packets being sorted since system setup
         """
@@ -55,10 +55,10 @@ class DatabaseManager:
     def set(self, weight, box_id):
         """
         Inserts data into the 'packets' table and the 'archive' table.
-
-        Args:
-            weight (int): The weight value to insert.
-            box_id (int): The box ID to associate with the weight.
+        @param weight: The weight value to insert.
+        @type weight: int
+        @param box_id: The box ID to associate with the weight.
+        @type box_id: int
         """
         if self.cursor:
             try:
@@ -80,10 +80,11 @@ class DatabaseManager:
 
     def getById(self, packet_id):
         """
-        Fetches one packet by id.
-
-        Args:
-            packet_id (int): The ID of the packet to fetch.
+        Fetches one packet by ID.
+        @param packet_id: The packet ID to fetch.
+        @type packet_id: int
+        @return: Row in table 'packets'
+        @rtype: int
         """
         if self.cursor:
             try:
@@ -94,13 +95,12 @@ class DatabaseManager:
                 return row
             except sqlite3.Error as e:
                 logging.exception(f"Error retrieving data: {e}")
-    
+
     def getAll(self, table_name):
         """
         Fetches and prints all data from the specified table.
-
-        Args:
-            table_name (str): The name of the table from which to fetch data.
+        @param table_name: The name of the table from which to fetch data.
+        @type table_name: str
         """
         if self.cursor:
             try:
@@ -115,9 +115,8 @@ class DatabaseManager:
     def getPacketsInBox(self, box_id):
         """
         Fetches and prints all packets currently in a specific box.
-
-        Args:
-            box_id (int): The ID of the box.
+        @param box_id: The ID of the box.
+        @type box_id: int
         """
         if self.cursor:
             try:
@@ -132,9 +131,10 @@ class DatabaseManager:
     def getPacketsInBoxCount(self, box_id):
         """
         Fetches the count of packets currently in a specific box.
-
-        Args:
-            box_id (int): The ID of the box.
+        @param box_id: The ID of the box.
+        @type box_id: int
+        @return: The count of packets currently in the box.
+        @rtype: int
         """
         if self.cursor:
             try:
@@ -145,18 +145,17 @@ class DatabaseManager:
             except sqlite3.Error as e:
                 logging.exception(f"Error retrieving packet count for box {box_id}: {e}")
                 return 0
+
     def emptyBox(self, box_id):
         """
         Deletes all packets from a specific box in the 'packets' table.
-
-        Args:
-            box_id (int): The ID of the box to empty.
+        @param box_id: The ID of the box to empty.
+        @type box_id: int
         """
         if self.cursor:
             try:
                 self.cursor.execute('DELETE FROM packets WHERE box_id = ?', (box_id,))
                 self.conn.commit()
-
                 logging.info(f"Emptied box {box_id} by deleting its packets from 'packets' table")
             except sqlite3.Error as e:
                 logging.exception(f"Error emptying box {box_id}: {e}")
@@ -176,13 +175,15 @@ class DatabaseManager:
         """
         if self.cursor:
             try:
-                for box_id in range(1,3):
-                    self.emptyBox(box_id)              
+                for box_id in range(1, 3):
+                    self.emptyBox(box_id)
                 logging.debug("Emptied all boxes and closed the database connection")
             except sqlite3.Error as e:
                 logging.exception(f"Error emptying all boxes: {e}")
         self.close()
 
+
+# for testing purposes
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     db_manager = DatabaseManager('raspi-webserver/src/db/database.db')
@@ -195,7 +196,7 @@ if __name__ == "__main__":
     ]
     for data in additional_data:
         db_manager.set(data[0], data[1])
-        
+
     db_manager.getAll('packets')
 
     db_manager.getById(1)

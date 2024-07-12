@@ -12,13 +12,14 @@ THRESHOLD = '5'
 UPDATED_DATABASE = '9'
 
 # Error messages
-SCALE = 's'   # scale error
+SCALE = 's'  # scale error
 WEIGHT = 'w'  # weighting error
-LIGHTBOX1 = 'l'   # light barrier error
-LIGHTBOX2 = 'L'   # light barrier error
+LIGHTBOX1 = 'l'  # light barrier error
+LIGHTBOX2 = 'L'  # light barrier error
 
 # Global variables
 ip_address = '192.168.1.105'
+
 
 class Server:
     """
@@ -28,12 +29,19 @@ class Server:
     def __init__(self, host, port) -> None:
         """
         Starts the server and initializes connection with robot.
+        :param host: Own IP address.
+        :type host: str
+        :param port: Port to listen on.
+        :type port: int
         """
         self.host = host
         self.port = port
         self.robot = Robot()
 
     def start_server(self):
+        """
+        Open a server and start listening.
+        """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((self.host, self.port))
             s.listen()
@@ -48,16 +56,14 @@ class Server:
                         response = self.handle_request(data.decode('utf-8'))
                         conn.sendall(response.encode('utf-8'))
 
-    def send_message(self, message, host, port):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((host, port))
-            if not isinstance(message, bytes):
-                message = message.encode('utf-8')
-            s.sendall(message)
-            response = s.recv(1024)
-            print('Received', response.decode('utf-8'))
-
     def handle_request(self, message):
+        """
+        Decode a message and forward command to robot.
+        :param message: The message to be decoded.
+        :type message: str
+        :return: Success or error message.
+        :rtype: str
+        """
         logging.info(f"Received message: {message}")
 
         if len(message) < 5 or message[1] != '/':

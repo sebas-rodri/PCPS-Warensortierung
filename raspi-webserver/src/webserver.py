@@ -5,6 +5,7 @@ import logging
 import time
 from session import Session
 import socket
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode='threading')
@@ -35,7 +36,12 @@ PORT_BACKEND = 8000
 
 @app.route('/')
 def index():
+    """
+    Renders a website.
+    @return: The rendered website.
+    """
     return render_template('index.html')
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -52,6 +58,7 @@ def handle_connect():
         None
     """
     logging.info('Client connected')
+
 
 @socketio.on('get_counter_value')
 def handle_get_counter_value():
@@ -71,6 +78,7 @@ def handle_get_counter_value():
     socketio.emit('set_counter1', {'value': activeSession.box1}, namespace='/')
     socketio.emit('set_counter2', {'value': activeSession.box2}, namespace='/')
 
+
 @socketio.on('get_threshold')
 def handle_get_threshold():
     """
@@ -86,6 +94,7 @@ def handle_get_threshold():
     """
     logging.info('Getting threshold')
     socketio.emit('set_threshold', {'value': activeSession.threshold}, namespace='/')
+
 
 @socketio.on('get_if_full')
 def handle_get_if_full():
@@ -107,12 +116,15 @@ def handle_get_if_full():
         box1full()
     if activeSession.box2Full:
         box2full()
+
+
 @socketio.on('disconnect')
 def handle_disconnect():
     """
     Handles the event when a client disconnects from the server.
     """
     logging.info('Client disconnected')
+
 
 
 @socketio.on('empty_box1')
@@ -132,6 +144,7 @@ def box1empty():
     activeSession.box1Full = False
     socketio.emit('enable_button', namespace='/')
     socketio.emit('box1_empty', {'value': activeSession.box1}, namespace='/')
+
 
 @socketio.on('empty_box2')
 def box2empty():
@@ -250,6 +263,7 @@ def box2full():
     socketio.emit('box2_full', {'value': activeSession.box2}, namespace='/')
 
 
+
 def handle_request(message):
     """
     Handles the incoming request message and performs the necessary actions based on the command and weight.
@@ -283,18 +297,16 @@ def handle_request(message):
 
     if command == UPDATED_DATABASE:
         logging.info(f"Received updated database: {message}")
-        # response = activeSession.send_message('get_data', 'localhost', 8000)
         if weight > activeSession.threshold:
-            
             increment('box2')
-            
+
         else:
             increment('box1')
         # handle_get_counter_value()
         logging.info(weight,activeSession.threshold)
         socketio.emit('enable_button', namespace='/')
         return "OK: Updated database"
-    
+
     # Handling error messages
     elif command_char == SCALE:
         logging.error("Scale error: timeout, check MCU>HX711 wiring and pin designations")
@@ -352,5 +364,4 @@ if __name__ == '__main__':
     thread = threading.Thread(target=start_server)
     thread.start()
     socketio.run(app, debug=False, host=ip_address, port=PORT_WEBSITE, allow_unsafe_werkzeug=True)
-
 

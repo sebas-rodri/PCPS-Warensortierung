@@ -13,10 +13,10 @@ THRESHOLD = '5'
 UPDATED_DATABASE = '9'
 
 # Error messages
-SCALE = 's'   # scale error
+SCALE = 's'  # scale error
 WEIGHT = 'w'  # weighting error
-LIGHTBOX1 = 'l'   # light barrier error
-LIGHTBOX2 = 'L'   # light barrier error
+LIGHTBOX1 = 'l'  # light barrier error
+LIGHTBOX2 = 'L'  # light barrier error
 
 # Global variables
 ip_address = '192.168.1.105'
@@ -26,12 +26,22 @@ PORT_BACKEND = 8000
 PORT_ROBOT = 8001
 
 class PackageSortingServer:
-    def __init__(self, host=ip_address, port=PORT_BACKEND):
+    def __init__(self, host=ip_address, port=8000):
+        """
+        Initialize own IP as host, the port to listen on and the database.
+        :param host: Own IP address, initialized as localhost.
+        :type host: str
+        :param port: Port to listen on, initialized as port 8000.
+        :type port: int
+        """
         self.host = host
         self.port = port
         self.db_manager = DatabaseManager('database.db')
 
     def start_server(self):
+        """
+        Open a server and start listening.
+        """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((self.host, self.port))
             s.listen()
@@ -47,6 +57,15 @@ class PackageSortingServer:
                         conn.sendall(response.encode('utf-8'))
 
     def send_message(self, message, host, port):
+        """
+        Send a message.
+        :param message: The message to send.
+        :type message: str
+        :param host: The IP address of the intended recipient.
+        :type host: str
+        :param port: The port the intended recipient is listening on.
+        :type port: int
+        """
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((host, port))
@@ -60,6 +79,13 @@ class PackageSortingServer:
             logging.error(f"Connection to {host}:{port} refused")
 
     def handle_request(self, message):
+        """
+        Decode a message, log the info gained in the database and forward the command accordingly.
+        :param message: The message to be decoded.
+        :type message: str
+        :return: Success or error message.
+        :rtype: str
+        """
         logging.info(f"Received message: {message}")
 
         if len(message) < 5 or message[1] != '/':
@@ -102,7 +128,7 @@ class PackageSortingServer:
             self.send_message('3/000', ip_address, PORT_ROBOT)
             self.send_message('4/000','192.168.1.141',PORT_ARDUINO)
             return f"OK: Package transport to scale and 4/000 send to arduino"
-        
+
         elif command == THRESHOLD:
             logging.info(f"Threshold updated to {weight}")
             self.send_message('5/'+weightstr,'192.168.1.141',PORT_ARDUINO)
@@ -124,7 +150,7 @@ class PackageSortingServer:
             self.send_message('l/000', ip_address, PORT_WEBSERVER)
             
             return "ERROR: Light barrier error"
-        
+
         elif command_char == LIGHTBOX2:
             logging.error("Light barrier error: the light barrier was triggered")
             self.send_message('L/000', ip_address, PORT_WEBSERVER)

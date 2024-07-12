@@ -18,6 +18,9 @@ class Session:
     """
 
     def __init__(self):
+        """
+        Initializes a new Session object.
+        """
         self.host = 'localhost'
         self.port = 5001
         self.active = False
@@ -33,13 +36,13 @@ class Session:
         """
         self.active = not self.active
         print(f'Active: {self.active}')
-    
+
     def increment_box1(self):
         """
         Increments the count of items in box1 by 1.
         """
         self.box1 += 1
-        
+
     def increment_box2(self):
         """
         Increments the count of items in box2 by 1.

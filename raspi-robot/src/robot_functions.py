@@ -8,18 +8,13 @@ POSITION_INPUT_BOX = (200, -150, 18)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):
-    """
-    Initializes an instance of the robot and brings it to home position
 
-    :param device_args: Arguments passed to the parent class constructor
-    :param device_kwargs: Keyword arguments passed to the parent class constructor
-    """
     def __init__(self, *device_args, **device_kwargs) -> None:
         """
         Initializes an instance of the robot and brings it to home position
 
-        :param device_args:
-        :param device_kwargs:
+        :param device_args: Arguments passed to the parent class constructor
+        :param device_kwargs: Keyword arguments passed to the parent class constructor
         """
         super().__init__(*device_args, **device_kwargs)
         self.home()
@@ -31,7 +26,6 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         :return: None
         """
         self.go_to_zero()
-
 
     def itemToBoxOne(self) -> None:
         """

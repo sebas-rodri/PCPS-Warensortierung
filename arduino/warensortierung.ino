@@ -329,20 +329,21 @@ void handleRequest(char *message) {
             }
         }
     }
+}
 
 
 /*!
  * After the start up, this is the function that's actually run. It runs on a loop.
  */
-    void loop() {
-        FLAG = 0;                       // make start button available
-        if (checkLight() == -1) {       // check the light barrier
-            return;                     // start again if triggered
-        }
-        if (digitalRead(BUTTON) == 1 && FLAG == 0) {    // check start button
-            FLAG = 1;                                   // lock button against repeated pressing
-            char *message = assembleData('3', 0);
-            sendData(message);                          // send instruction to robot
-        }
-        receiveData();                  // listen for instruction
+void loop() {
+    FLAG = 0;                       // make start button available
+    if (checkLight() == -1) {       // check the light barrier
+        return;                     // start again if triggered
     }
+    if (digitalRead(BUTTON) == 1 && FLAG == 0) {    // check start button
+        FLAG = 1;                                   // lock button against repeated pressing
+        char *message = assembleData('3', 0);
+        sendData(message);                          // send instruction to robot
+    }
+    receiveData();                  // listen for instruction
+}

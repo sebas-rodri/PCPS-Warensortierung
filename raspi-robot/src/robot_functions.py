@@ -4,22 +4,17 @@ import wlkata_mirobot
 POSITION_SCALE = (70, -230, 50)
 POSITION_BOX_1 = (50, 240, 100)
 POSITION_BOX_2 = (-55, 210, 100)
-POSITION_INPUT_BOX = (200, -150, 20)
+POSITION_INPUT_BOX = (200, -150, 18)
 
 
 class Robot(wlkata_mirobot.WlkataMirobot):
-    """
-    Initializes an instance of the robot and brings it to home position
 
-    :param device_args: Arguments passed to the parent class constructor
-    :param device_kwargs: Keyword arguments passed to the parent class constructor
-    """
     def __init__(self, *device_args, **device_kwargs) -> None:
         """
         Initializes an instance of the robot and brings it to home position
 
-        :param device_args:
-        :param device_kwargs:
+        :param device_args: Arguments passed to the parent class constructor
+        :param device_kwargs: Keyword arguments passed to the parent class constructor
         """
         super().__init__(*device_args, **device_kwargs)
         self.home()
@@ -31,7 +26,6 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         :return: None
         """
         self.go_to_zero()
-
 
     def itemToBoxOne(self) -> None:
         """
@@ -104,6 +98,7 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2])
         # Pickup Box
         self.pump_suction()
+        time.sleep(1)
         # Move Up
         self.set_tool_pose(POSITION_INPUT_BOX[0], POSITION_INPUT_BOX[1], POSITION_INPUT_BOX[2] + 100)
         # Move to scale
@@ -112,3 +107,5 @@ class Robot(wlkata_mirobot.WlkataMirobot):
         # Release Item
         self.pump_blowing()
         self.pump_off()
+        # Move up
+        self.set_tool_pose(POSITION_SCALE[0], POSITION_SCALE[1], POSITION_SCALE[2] + 100)

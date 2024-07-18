@@ -109,9 +109,9 @@
         </div>
     </div>
     <div class="buttondiv">
-        <button onclick="emptiedbox1()" class="buttonblue spaceright" id ="empty1">Click when emptied</button>
+        <button onclick="emptiedbox1()" class="buttonblue spaceright" id ="empty1" disabled>Click when emptied</button>
         <button onclick="startOrPause()" class="buttonblue" id="button" disabled>Pickup</button>
-        <button onclick="emptiedbox2()" class="buttonblue spaceleft" id ="empty2">Click when emptied</button>
+        <button onclick="emptiedbox2()" class="buttonblue spaceleft" id ="empty2" disabled>Click when emptied</button>
     </div>
     <div class="threshold">
         <input type="text" id="messageInput" placeholder="Enter Threshold">
@@ -136,6 +136,8 @@
         var button = document.getElementById('button');
         button.disabled = false;
         document.getElementById('buttonthreshold').disabled = false;
+        document.getElementById('empty1').disabled = false;
+        document.getElementById('empty2').disabled = false;
         let box1counter = 0; //function to get current value of box1
         let box2counter = 0;
         socket.on('connect', () => {
@@ -146,8 +148,8 @@
         });
 
         socket.on('set_threshold', (data) => {
-            document.getElementById('thresholdgt').innerText = `>${data.value} gram`;
-            document.getElementById('thesholdlt').innerText = `<=${data.value} gram`;
+            document.getElementById('thresholdgt').innerText = `>${data.value} Gramm`;
+            document.getElementById('thesholdlt').innerText = `<=${data.value} Gramm`;
         });
 
 
@@ -182,6 +184,7 @@
             document.getElementById("box1").innerText = "Full Box 1";
             document.getElementById('button').innerText = 'Wait Till Box is Empty';
             document.getElementById('button').disabled = true;
+            document.getElementById('empty1').disabled = false;
             document.getElementById('button').className = 'buttonred';
         });
 
@@ -191,6 +194,7 @@
             document.getElementById("box2").innerText = "Full Box 2";
             document.getElementById('button').innerText = 'Wait Till Box is Empty';
             document.getElementById('button').disabled = true;
+            document.getElementById('empty2').disabled = false;
             document.getElementById('button').className = 'buttonred';
         });
 
@@ -266,14 +270,22 @@
                 document.getElementById('button').innerText = 'Wait For Robot';
                 document.getElementById('button').disabled = true;
                 document.getElementById('buttonthreshold').disabled = true;
+                document.getElementById('empty1').disabled = true;
+                document.getElementById('empty2').disabled = true;
                 document.getElementById('button').className = 'buttonred';
             }
             socket.emit('start/pause');
         }
 
+        socket.on('weight_error', () => {
+            alert('It seems that no package is on the scale. Make sure that a package in in the sorting Box!');
+        });
+
         socket.on('enable_button', () => {
             document.getElementById('button').disabled = false;
             document.getElementById('buttonthreshold').disabled = false;
+            document.getElementById('empty1').disabled = false;
+            document.getElementById('empty2').disabled = false;
             document.getElementById('button').innerText = 'Pickup';
             document.getElementById('button').className = 'buttonblue';
         });

@@ -3,6 +3,7 @@
 > A project for the Cyber-Physical Systems project at TU Berlin.
 
 This project automates goods reception using a robotic arm. Packages are classified by weight and sorted by the robotic arm.
+[Project Video](https://tubcloud.tu-berlin.de/s/no9Y3GW3kZYjqjF)
 
 ## Architecture
 Learn more in the [WIKI](https://github.com/sebas-rodri/PCPS-Warensortierung/wiki)

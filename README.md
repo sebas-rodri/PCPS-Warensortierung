@@ -4,6 +4,9 @@
 
 This project automates goods reception using a robotic arm. Packages are classified by weight and sorted by the robotic arm.
 
+## Architecture
+Learn more in the [WIKI](https://github.com/sebas-rodri/PCPS-Warensortierung/wiki)
+
 ## Hardware Requirements
 
 - Wlkata Mirobot 6-Axis Robot Arm
